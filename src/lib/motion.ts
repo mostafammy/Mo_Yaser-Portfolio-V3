@@ -1,10 +1,10 @@
 import type { Variants } from "framer-motion"
 
 export const spring = {
-  snappy: { type: "spring", stiffness: 400, damping: 30 },
-  smooth: { type: "spring", stiffness: 200, damping: 25 },
-  gentle: { type: "spring", stiffness: 100, damping: 20 },
-  bounce: { type: "spring", stiffness: 300, damping: 15 },
+  snappy: { type: "spring" as const, stiffness: 400, damping: 30 },
+  smooth: { type: "spring" as const, stiffness: 200, damping: 25 },
+  gentle: { type: "spring" as const, stiffness: 100, damping: 20 },
+  bounce: { type: "spring" as const, stiffness: 300, damping: 15 },
 }
 
 export const ease = {
