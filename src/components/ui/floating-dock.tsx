@@ -16,13 +16,13 @@ import { useRef, useState } from "react";
 export const FloatingDock = ({
   items,
   activeSection,
-  sectionProgress = 0,
+  sectionProgress,
   desktopClassName,
   mobileClassName,
 }: {
   items: { title: string; icon: React.ReactNode; href: string }[];
   activeSection?: string;
-  sectionProgress?: number;
+  sectionProgress?: MotionValue<number>;
   desktopClassName?: string;
   mobileClassName?: string;
 }) => {
@@ -37,15 +37,19 @@ export const FloatingDock = ({
 const FloatingDockMobile = ({
   items,
   activeSection,
-  sectionProgress = 0,
+  sectionProgress,
   className,
 }: {
   items: { title: string; icon: React.ReactNode; href: string }[];
   activeSection?: string;
-  sectionProgress?: number;
+  sectionProgress?: MotionValue<number>;
   className?: string;
 }) => {
   const [open, setOpen] = useState(false);
+  const fallbackProgress = useMotionValue(0);
+  const progress = sectionProgress ?? fallbackProgress;
+  const dashoffset = useTransform(progress, [0, 1], [301.59, 0]);
+
   return (
     <div className={cn("relative block md:hidden", className)}>
       <AnimatePresence>
@@ -88,16 +92,32 @@ const FloatingDockMobile = ({
                       transition={{ type: "spring", stiffness: 300, damping: 25 }}
                     >
                       <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(59,130,246,0.2)" strokeWidth="4" />
-                        <circle
+                        <defs>
+                          <linearGradient id="dock-progress-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#3b82f6" />
+                            <stop offset="50%" stopColor="#8b5cf6" />
+                            <stop offset="100%" stopColor="#06b6d4" />
+                          </linearGradient>
+                          <filter id="dock-glow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                            <feMerge>
+                              <feMergeNode in="coloredBlur" />
+                              <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                          </filter>
+                        </defs>
+                        <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(59,130,246,0.15)" strokeWidth="4" />
+                        <motion.circle
                           cx="50" cy="50" r="48"
                           fill="none"
-                          stroke="#3b82f6"
+                          stroke="url(#dock-progress-gradient)"
                           strokeWidth="4"
                           strokeLinecap="round"
                           strokeDasharray="301.59"
-                          strokeDashoffset={301.59 - (301.59 * sectionProgress)}
-                          style={{ transition: "stroke-dashoffset 0.1s ease-out" }}
+                          style={{ 
+                            strokeDashoffset: dashoffset,
+                            filter: "url(#dock-glow)"
+                          }}
                         />
                       </svg>
                     </motion.div>
@@ -124,12 +144,12 @@ const FloatingDockMobile = ({
 const FloatingDockDesktop = ({
   items,
   activeSection,
-  sectionProgress = 0,
+  sectionProgress,
   className,
 }: {
   items: { title: string; icon: React.ReactNode; href: string }[];
   activeSection?: string;
-  sectionProgress?: number;
+  sectionProgress?: MotionValue<number>;
   className?: string;
 }) => {
   let mouseX = useMotionValue(Infinity);
@@ -155,16 +175,19 @@ function IconContainer({
   icon,
   href,
   isActive,
-  sectionProgress = 0,
+  sectionProgress,
 }: {
   mouseX: MotionValue;
   title: string;
   icon: React.ReactNode;
   href: string;
   isActive?: boolean;
-  sectionProgress?: number;
+  sectionProgress?: MotionValue<number>;
 }) {
   let ref = useRef<HTMLDivElement>(null);
+  const fallbackProgress = useMotionValue(0);
+  const progress = sectionProgress ?? fallbackProgress;
+  const dashoffset = useTransform(progress, [0, 1], [301.59, 0]);
 
   let distance = useTransform(mouseX, (val) => {
     let bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
@@ -225,16 +248,32 @@ function IconContainer({
             transition={{ type: "spring", stiffness: 350, damping: 25 }}
           >
             <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(59,130,246,0.2)" strokeWidth="4" />
-              <circle
+              <defs>
+                <linearGradient id="dock-desktop-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#3b82f6" />
+                  <stop offset="50%" stopColor="#8b5cf6" />
+                  <stop offset="100%" stopColor="#06b6d4" />
+                </linearGradient>
+                <filter id="dock-desktop-glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                  <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+              <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(59,130,246,0.15)" strokeWidth="4" />
+              <motion.circle
                 cx="50" cy="50" r="48"
                 fill="none"
-                stroke="#3b82f6"
+                stroke="url(#dock-desktop-gradient)"
                 strokeWidth="4"
                 strokeLinecap="round"
                 strokeDasharray="301.59"
-                strokeDashoffset={301.59 - (301.59 * sectionProgress)}
-                style={{ transition: "stroke-dashoffset 0.1s ease-out" }}
+                style={{ 
+                  strokeDashoffset: dashoffset,
+                  filter: "url(#dock-desktop-glow)"
+                }}
               />
             </svg>
           </motion.div>
