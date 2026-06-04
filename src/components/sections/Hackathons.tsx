@@ -59,8 +59,11 @@ export function Hackathons() {
             viewport={{ once: true }}
             className="text-[15px] text-white/35 max-w-md"
           >
-            7 international hackathons across 4 continents in under 18
-            months — 3 finalist positions.
+            9 hackathons across 4 continents —{" "}
+            <span className="text-amber-400/80 font-medium">
+              2nd place at SalamHack 2025
+            </span>
+            {" "}(JIS, Jordan), 3 finalist positions.
           </motion.p>
         </div>
 
@@ -91,7 +94,7 @@ function HackathonCard({
   const cardRef = useRef<HTMLDivElement>(null)
 
   const fireConfetti = () => {
-    if (item.result !== "Finalist") return
+    if (item.result !== "Finalist" && item.result !== "2nd Place") return
     const rect = cardRef.current?.getBoundingClientRect()
     if (!rect) return
     confetti({
@@ -117,14 +120,25 @@ function HackathonCard({
     >
       <CometCard className="h-full" rotateDepth={10} translateDepth={10}>
         <div
-          className="p-5 rounded-2xl bg-white/[0.03] border border-white/[0.07]
-                     h-full min-h-[192px] flex flex-col justify-between"
+          className={`p-5 rounded-2xl h-full min-h-[192px] flex flex-col justify-between ${
+            item.result === "2nd Place"
+              ? "bg-amber-500/[0.06] border border-amber-400/30"
+              : "bg-white/[0.03] border border-white/[0.07]"
+          }`}
         >
           {/* Top */}
           <div>
             <div className="flex items-start justify-between gap-2 mb-4">
               <span className="text-[26px] leading-none">{item.badge}</span>
-              {item.result === "Finalist" ? (
+              {item.result === "2nd Place" ? (
+                <span
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
+                             bg-amber-400/20 border border-amber-400/40
+                             text-[11px] font-bold text-amber-300 tracking-wide"
+                >
+                  ★★ 2nd Place
+                </span>
+              ) : item.result === "Finalist" ? (
                 <span
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full
                              bg-amber-500/15 border border-amber-500/25
