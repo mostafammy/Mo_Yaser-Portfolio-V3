@@ -56,12 +56,43 @@ const NAV_ITEMS = [
 
 export function FloatingNav() {
   const [visible, setVisible] = useState(false)
+  const [activeSection, setActiveSection] = useState("#hero")
+  const [sectionProgress, setSectionProgress] = useState(0)
 
   useEffect(() => {
     const onScroll = () => {
-      setVisible(window.scrollY > window.innerHeight * 0.55)
+      const scrollY = window.scrollY
+      setVisible(scrollY > window.innerHeight * 0.55)
+
+      const sections = NAV_ITEMS.map((item) =>
+        document.getElementById(item.href.replace("#", ""))
+      ).filter(Boolean)
+
+      const vh = window.innerHeight
+
+      for (const section of sections) {
+        if (!section) continue
+        const rect = section.getBoundingClientRect()
+        
+        // A section is active if it covers the middle of the screen
+        if (rect.top <= vh * 0.5 && rect.bottom >= vh * 0.5) {
+          setActiveSection(`#${section.id}`)
+          
+          // Calculate how much of the section has scrolled past the center
+          const totalScrollable = rect.height
+          const scrolledPastCenter = (vh * 0.5) - rect.top
+          
+          let progress = scrolledPastCenter / totalScrollable
+          progress = Math.max(0, Math.min(1, progress))
+          setSectionProgress(progress)
+          break
+        }
+      }
     }
+    
     window.addEventListener("scroll", onScroll, { passive: true })
+    onScroll() // Initial calculation
+    
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
@@ -77,6 +108,8 @@ export function FloatingNav() {
     >
       <FloatingDock
         items={NAV_ITEMS}
+        activeSection={activeSection}
+        sectionProgress={sectionProgress}
         desktopClassName="bg-black/75 backdrop-blur-2xl border border-white/10 shadow-2xl"
         mobileClassName="bg-black/75 backdrop-blur-2xl border border-white/10 shadow-2xl"
       />
