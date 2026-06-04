@@ -57,6 +57,7 @@ interface TypingAnimationProps extends Omit<MotionProps, "children"> {
   showCursor?: boolean
   blinkCursor?: boolean
   cursorStyle?: "line" | "block" | "underscore"
+  onVanished?: () => void
 }
 
 export function TypingAnimation({
@@ -74,6 +75,7 @@ export function TypingAnimation({
   showCursor = true,
   blinkCursor = true,
   cursorStyle = "line",
+  onVanished,
   ...props
 }: TypingAnimationProps) {
   const MotionComponent = motionElements[
@@ -235,7 +237,10 @@ export function TypingAnimation({
       animate={{ opacity: isVanishing ? 0 : 1 }}
       transition={{ duration: 0.6, ease: "easeInOut" }}
       onAnimationComplete={() => {
-        if (isVanishing) setVanished(true)
+        if (isVanishing) {
+          setVanished(true)
+          onVanished?.()
+        }
       }}
       {...props}
     >
