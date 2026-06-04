@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { motion } from "motion/react"
+import { motion, useScroll, useSpring, useMotionValue } from "motion/react"
 import { FloatingDock } from "@/components/ui/floating-dock"
 
 const HomeIcon = () => (
@@ -57,12 +57,17 @@ const NAV_ITEMS = [
 export function FloatingNav() {
   const [visible, setVisible] = useState(false)
   const [activeSection, setActiveSection] = useState("#hero")
-  const [sectionProgress, setSectionProgress] = useState(0)
+  const { scrollY } = useScroll()
+  const sectionProgress = useMotionValue(0)
+  const smoothProgress = useSpring(sectionProgress, {
+    stiffness: 400,
+    damping: 40,
+    mass: 0.5,
+  })
 
   useEffect(() => {
-    const onScroll = () => {
-      const scrollY = window.scrollY
-      setVisible(scrollY > window.innerHeight * 0.55)
+    return scrollY.on("change", (latest) => {
+      setVisible(latest > window.innerHeight * 0.55)
 
       const sections = NAV_ITEMS.map((item) =>
         document.getElementById(item.href.replace("#", ""))
@@ -74,27 +79,23 @@ export function FloatingNav() {
         if (!section) continue
         const rect = section.getBoundingClientRect()
         
-        // A section is active if it covers the middle of the screen
         if (rect.top <= vh * 0.5 && rect.bottom >= vh * 0.5) {
-          setActiveSection(`#${section.id}`)
+          const nextActive = `#${section.id}`
+          setActiveSection((prev) => (prev !== nextActive ? nextActive : prev))
           
-          // Calculate how much of the section has scrolled past the center
           const totalScrollable = rect.height
           const scrolledPastCenter = (vh * 0.5) - rect.top
           
           let progress = scrolledPastCenter / totalScrollable
           progress = Math.max(0, Math.min(1, progress))
-          setSectionProgress(progress)
+          
+          // Update motion value (bypasses React render)
+          sectionProgress.set(progress)
           break
         }
       }
-    }
-    
-    window.addEventListener("scroll", onScroll, { passive: true })
-    onScroll() // Initial calculation
-    
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
+    })
+  }, [scrollY, sectionProgress])
 
   return (
     <motion.div
@@ -109,7 +110,7 @@ export function FloatingNav() {
       <FloatingDock
         items={NAV_ITEMS}
         activeSection={activeSection}
-        sectionProgress={sectionProgress}
+        sectionProgress={smoothProgress}
         desktopClassName="bg-black/75 backdrop-blur-2xl border border-white/10 shadow-2xl"
         mobileClassName="bg-black/75 backdrop-blur-2xl border border-white/10 shadow-2xl"
       />
