@@ -23,14 +23,6 @@ type FetchState =
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
-const DOMAINS = [
-  { label: "Frontend Engineering", color: "#3b82f6" },
-  { label: "Global Health Systems", color: "#10b981" },
-  { label: "IFMSA Infrastructure", color: "#8b5cf6" },
-  { label: "Hackathon Prototypes", color: "#f59e0b" },
-  { label: "Open Source", color: "#06b6d4" },
-]
-
 const LEGEND = [
   "rgba(255,255,255,0.05)",
   "rgba(59,130,246,0.22)",
@@ -261,7 +253,7 @@ export function GitHubContributions() {
             >
               ~3,000 contributions
               <br />
-              <span className="text-white/35">per year.</span>
+              <span className="text-white/35">every year.</span>
             </motion.h2>
 
             <motion.p
@@ -270,11 +262,12 @@ export function GitHubContributions() {
               whileInView="visible"
               custom={2}
               viewport={{ once: true }}
-              className="text-[15px] text-white/40 leading-[1.75] max-w-xs lg:text-right shrink-0"
+              className="text-[15px] text-white/40 leading-[1.75] max-w-[300px] lg:text-right shrink-0"
             >
-              Maintained across frontend engineering,
-              global health systems, and impact
-              infrastructure — simultaneously.
+              Committed while directing IFMSA programs
+              across 130+ countries, competing on
+              4 continents, and shipping production
+              systems. The calendar never stopped.
             </motion.p>
           </div>
         </div>
@@ -355,11 +348,9 @@ export function GitHubContributions() {
           </div>
 
           {/* Legend */}
-          <div className="relative z-10 flex items-center justify-between mt-5 pt-4 border-t border-white/[0.04]">
-            <span className="text-[11px] text-white/20 tracking-wide">
-              2026 contribution calendar
-            </span>
-            <div className="flex items-center gap-1.5">
+          <div className="relative z-10 flex items-center justify-between mt-5 pt-4 border-t border-white/[0.04] flex-wrap gap-3">
+
+            <div className="flex items-center gap-1.5 shrink-0">
               <span className="text-[10px] text-white/20">Less</span>
               {LEGEND.map((bg, i) => (
                 <div
@@ -371,35 +362,6 @@ export function GitHubContributions() {
               <span className="text-[10px] text-white/20">More</span>
             </div>
           </div>
-        </motion.div>
-
-        {/* ── Domain chips ─── */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          custom={5}
-          viewport={{ once: true }}
-          className="mt-8 flex flex-wrap items-center gap-3"
-        >
-          <span className="text-[11px] text-white/22 tracking-[0.18em] uppercase font-medium">
-            Domains
-          </span>
-          <span className="h-4 w-px bg-white/[0.07]" />
-          {DOMAINS.map(({ label, color }) => (
-            <span
-              key={label}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[12px] font-medium tracking-wide cursor-default transition-all duration-200 hover:scale-[1.04]"
-              style={{
-                color: color + "cc",
-                background: color + "0f",
-                border: `1px solid ${color}22`,
-              }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: color + "bb" }} />
-              {label}
-            </span>
-          ))}
         </motion.div>
 
       </div>
