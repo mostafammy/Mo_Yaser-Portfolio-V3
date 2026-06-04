@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import { motion } from "motion/react"
 import dynamic from "next/dynamic"
 import { AuroraText } from "@/components/ui/aurora-text"
@@ -28,7 +28,7 @@ const ROLES = [
 const STATS = [
   { number: "130+", label: "Countries reached" },
   { number: "2 yrs", label: "IFMSA leadership" },
-  { number: "7+", label: "Hackathons · 1 win" },
+  { number: "8+", label: "Hackathons · SalamHack 2nd" },
 ]
 
 const globeConfig = {
@@ -71,6 +71,7 @@ const heroArcs = [
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const [typingVanished, setTypingVanished] = useState(false)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -174,18 +175,26 @@ export function Hero() {
         </motion.h1>
 
         {/* Morphing role */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={2}
-          className="mb-8 w-full h-[32px] sm:h-[48px]"
-        >
-          <MorphingText
-            texts={ROLES}
-            className="text-white/90 font-normal text-xl sm:text-3xl drop-shadow-[0_0_12px_rgba(255,255,255,0.08)]"
-          />
-        </motion.div>
+        <div className="mb-8 w-full h-[32px] sm:h-[48px]">
+          {!typingVanished ? (
+            <div className="flex items-center justify-center h-full">
+              <span className="text-white/30 font-normal text-xl sm:text-3xl">
+                {ROLES[0]}
+              </span>
+            </div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, filter: "blur(4px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <MorphingText
+                texts={ROLES}
+                className="text-white font-normal text-xl sm:text-3xl drop-shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+              />
+            </motion.div>
+          )}
+        </div>
 
         {/* Description */}
         <motion.div
@@ -198,6 +207,7 @@ export function Hero() {
           <TypingAnimation
             className="text-base lg:text-[17px] text-white/35 leading-relaxed font-normal inline"
             duration={25}
+            onVanished={() => setTypingVanished(true)}
           >
             Building systems that scale — from production web applications to global health program frameworks across 130+ countries.
           </TypingAnimation>
