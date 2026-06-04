@@ -5,6 +5,7 @@ import { motion } from "motion/react"
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input"
 import { FloatingDock } from "@/components/ui/floating-dock"
 import { fadeUp } from "@/lib/motion"
+import confetti from "canvas-confetti"
 
 const PLACEHOLDERS = [
   "What are you building?",
@@ -143,6 +144,12 @@ export function Contact() {
               onSubmit={(e) => {
                 e.preventDefault()
                 setSubmitted(true)
+                confetti({
+                  particleCount: 100,
+                  spread: 70,
+                  origin: { y: 0.6 },
+                  colors: ["#3b82f6", "#8b5cf6", "#06b6d4"],
+                })
               }}
             />
           )}
