@@ -196,9 +196,20 @@ export function TypingAnimation({
     currentCharIndex >= currentWordGraphemes.length &&
     phase !== "deleting"
 
+  const [isVanishing, setIsVanishing] = useState(false)
+  const [vanished, setVanished] = useState(false)
+
+  useEffect(() => {
+    if (isComplete && !loop) {
+      const timer = setTimeout(() => setIsVanishing(true), 800)
+      return () => clearTimeout(timer)
+    }
+  }, [isComplete, loop])
+
   const shouldShowCursor =
     showCursor &&
     !isComplete &&
+    !isVanishing &&
     (hasMultipleWords || loop || currentCharIndex < currentWordGraphemes.length)
 
   const getCursorChar = () => {
@@ -221,10 +232,15 @@ export function TypingAnimation({
         Component === "span" && "inline-block",
         className
       )}
+      animate={{ opacity: isVanishing ? 0 : 1 }}
+      transition={{ duration: 0.6, ease: "easeInOut" }}
+      onAnimationComplete={() => {
+        if (isVanishing) setVanished(true)
+      }}
       {...props}
     >
-      {displayedText}
-      {shouldShowCursor && (
+      {!vanished && displayedText}
+      {!vanished && shouldShowCursor && (
         <span
           className={cn("inline-block", blinkCursor && "animate-blink-cursor")}
         >
