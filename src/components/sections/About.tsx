@@ -5,6 +5,7 @@ import { motion } from "motion/react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { fadeUp, scaleIn } from "@/lib/motion"
+import { GlowingEffect } from "@/components/ui/glowing-effect"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -24,8 +25,8 @@ const CARDS = [
   {
     icon: "◇",
     title: "Builder, not just coder",
-    body: "Co-Founded Enactus New Valley. Competed in 7 international hackathons across 4 continents in under 18 months.",
-    tags: ["Enactus", "Hackathons", "Entrepreneurship"],
+    body: "Co-Founded Enactus New Valley. 7 international hackathons across 4 continents — including 2nd place at SalamHack 2025, Jordan Innovation StartUps.",
+    tags: ["Enactus", "Hackathons", "SalamHack 2nd Place"],
   },
   {
     icon: "◉",
@@ -38,7 +39,7 @@ const CARDS = [
 const COUNTER_ITEMS = [
   { target: 130, suffix: "+", label: "Countries reached" },
   { target: 2, suffix: " yrs", label: "IFMSA leadership" },
-  { target: 7, suffix: "+", label: "Hackathon finals" },
+  { target: 7, suffix: "+", label: "Hackathons · 1 win" },
 ]
 
 export function About() {
@@ -162,12 +163,18 @@ export function About() {
                 whileInView="visible"
                 custom={i}
                 viewport={{ once: true, margin: "-60px" }}
-                className="group p-6 rounded-2xl
+                className="group relative p-6 rounded-2xl
                            bg-white/[0.025] border border-white/[0.06]
-                           hover:bg-white/[0.04] hover:border-white/[0.1]
                            transition-all duration-300 cursor-default"
               >
-                <div className="flex items-start gap-4">
+                <GlowingEffect
+                  spread={40}
+                  glow={true}
+                  disabled={false}
+                  proximity={64}
+                  inactiveZone={0.01}
+                />
+                <div className="relative z-10 flex items-start gap-4">
                   <span className="text-xl text-blue-500/55 mt-0.5 flex-shrink-0 font-mono">
                     {card.icon}
                   </span>
