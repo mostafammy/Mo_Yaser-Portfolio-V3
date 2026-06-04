@@ -6,11 +6,15 @@ import DottedMap from "dotted-map";
 
 import { useTheme } from "@/components/theme-provider";
 
+interface MapPoint {
+  lat: number;
+  lng: number;
+  label?: string;
+  labelOffset?: { x: number; y: number };
+}
+
 interface MapProps {
-  dots?: Array<{
-    start: { lat: number; lng: number; label?: string };
-    end: { lat: number; lng: number; label?: string };
-  }>;
+  dots?: Array<{ start: MapPoint; end: MapPoint }>;
   lineColor?: string;
 }
 
@@ -166,6 +170,37 @@ export default function WorldMap({
             </g>
           </g>
         ))}
+
+        {/* City labels — deduplicated across all start/end points */}
+        {(() => {
+          const seen = new Set<string>();
+          return dots
+            .flatMap((dot) => [dot.start, dot.end])
+            .filter((p): p is MapPoint & { label: string } => {
+              if (!p.label || seen.has(p.label)) return false;
+              seen.add(p.label);
+              return true;
+            })
+            .map((p) => {
+              const { x, y } = projectPoint(p.lat, p.lng);
+              const ox = p.labelOffset?.x ?? 6;
+              const oy = p.labelOffset?.y ?? -7;
+              return (
+                <text
+                  key={p.label}
+                  x={x + ox}
+                  y={y + oy}
+                  fontSize="8"
+                  fontFamily="system-ui, sans-serif"
+                  fontWeight="500"
+                  fill={isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.55)"}
+                  className="select-none pointer-events-none"
+                >
+                  {p.label}
+                </text>
+              );
+            });
+        })()}
       </svg>
     </div>
   );
