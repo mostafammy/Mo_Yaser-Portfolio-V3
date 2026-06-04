@@ -25,8 +25,8 @@ const CARDS = [
   {
     icon: "◇",
     title: "Builder, not just coder",
-    body: "Co-Founded Enactus New Valley. 7 international hackathons across 4 continents — including 2nd place at SalamHack 2025, Jordan Innovation StartUps.",
-    tags: ["Enactus", "Hackathons", "SalamHack 2nd Place"],
+    body: "Co-Founded Enactus New Valley. 8+ international hackathons across 4 continents — 2nd place at SalamHack 2025 (JIS, Jordan), finalist at SalamHack 2026.",
+    tags: ["Enactus", "SalamHack 2nd · 2025", "SalamHack Finalist · 2026"],
   },
   {
     icon: "◉",
@@ -39,7 +39,7 @@ const CARDS = [
 const COUNTER_ITEMS = [
   { target: 130, suffix: "+", label: "Countries reached" },
   { target: 2, suffix: " yrs", label: "IFMSA leadership" },
-  { target: 7, suffix: "+", label: "Hackathons · 1 win" },
+  { target: 8, suffix: "+", label: "Hackathons · SalamHack 2nd" },
 ]
 
 export function About() {
