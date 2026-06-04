@@ -4,6 +4,7 @@ import { useRef, type ReactNode } from "react"
 import { motion, useInView } from "motion/react"
 import {
   IconQuestionMark,
+  IconSchool,
   IconCode,
   IconHeartHandshake,
   IconTrophy,
@@ -27,12 +28,22 @@ type Chapter = {
 
 const CHAPTERS: Chapter[] = [
   {
+    year: "2017",
+    accent: "#f97316",
+    icon: <IconSchool size={28} stroke={1.8} />,
+    title: "The screen stopped being a window.",
+    narrative:
+      "January to June, computer fundamentals class. We covered file systems, how a browser renders a page, what HTML structures and CSS styles. Nothing spectacular on paper. But for the first time I wasn't just watching a screen — I was beginning to understand what it was made of from the inside. That feeling didn't go away when the semester ended.",
+    tags: ["Computer Fundamentals", "HTML", "CSS", "January–June 2017"],
+    bridge: "one year before one question changed everything",
+  },
+  {
     year: "2018",
     accent: "#818cf8",
     icon: <IconQuestionMark size={28} stroke={1.8} />,
     title: "It all started with confusion.",
     narrative:
-      "In a hospital waiting room, I watched a doctor squint at a screen running software that looked older than I was. Nurses printed forms. Patients waited. Data lived in filing cabinets. The confusion wasn't 'why is this slow?' — it was 'why hasn't someone fixed this?' That question has never left me.",
+      "In IT class, my teacher showed us an HTML form — action=\"index.php\". I stopped him mid-sentence: are there files with a .php extension? What do they do differently? He said we didn't have enough time. Class ended. I went home with more questions than I'd ever had about anything, and I didn't sleep until I had at least some answers. That night changed everything.",
     tags: ["Origin Story", "Cairo, Egypt"],
     bridge: "two years of wondering",
   },
@@ -40,10 +51,10 @@ const CHAPTERS: Chapter[] = [
     year: "2020",
     accent: "#3b82f6",
     icon: <IconCode size={28} stroke={1.8} />,
-    title: "I typed my first line of code.",
+    title: "I didn't start small.",
     narrative:
-      "It was terrible HTML. The browser didn't care — it rendered it anyway. And something clicked: a machine would do exactly what I told it to, with nothing but text. No factory. No material cost. No middleman. Just logic, made visible. I spent the next three years building things no one would ever use — and learning more than I ever did in class.",
-    tags: ["HTML", "CSS", "JavaScript", "Self-taught"],
+      "Two years after that PHP question, I shipped a Facebook clone — full social feed, user auth, friend requests, jQuery on the front, PHP and MySQL on the back. Then an eCommerce app. Not tutorials. Not 'hello world.' Real systems, built from scratch, because I still couldn't stop asking how things actually worked under the hood.",
+    tags: ["jQuery", "PHP", "MySQL", "Facebook Clone", "eCommerce"],
     bridge: "three years of building in the dark",
   },
   {
@@ -62,8 +73,8 @@ const CHAPTERS: Chapter[] = [
     icon: <IconTrophy size={28} stroke={1.8} />,
     title: "Seven hackathons in eighteen months.",
     narrative:
-      "SalamHack. NASA Space Apps. Junction in Finland. EcoHack. Dubai Chambers. Each one taught me something classrooms don't: the shape of your thinking under a deadline. You learn what you actually believe in when you only have 48 hours to prove it. Three finalist positions. Dozens of prototypes. One consistent realization — constraints make you creative, not cautious.",
-    tags: ["3× Finalist", "SalamHack", "NASA", "Junction '25", "4 Continents"],
+      "SalamHack 2025 — 2nd place, Jordan Innovation StartUps, April 2025. NASA Space Apps. Junction in Finland. EcoHack. Dubai Chambers. Seven competitions, four continents, eighteen months. Each one taught me something classrooms don't: the shape of your thinking under a deadline. You learn what you actually believe in when you only have 48 hours to prove it. Constraints make you creative, not cautious.",
+    tags: ["2nd Place · SalamHack 2025", "NASA", "Junction '25", "4 Continents"],
     bridge: "one year of going wider",
   },
   {
@@ -92,7 +103,7 @@ const CHAPTERS: Chapter[] = [
     icon: <IconCompass size={28} stroke={1.8} />,
     title: "The confusion became a compass.",
     narrative:
-      "Everything I build starts with the same question from 2018: why hasn't someone fixed this? Whether it's a mentorship platform at ScholarX, a health program framework at IFMSA, or a brand system at Enactus — the question is always the same. The stack changes. The constraints change. The question doesn't. And as long as that question keeps leading somewhere useful, I'm following it.",
+      "Everything I build traces back to that IT classroom in 2018 — a question no one had time to answer, and a refusal to let it go. Whether it's building infrastructure for IFMSA, shipping a prototype in 48 hours, or architecting a production system: it always starts the same way. A question, an open browser tab, and the same restlessness that kept me up that first night.",
     tags: ["ScholarX", "IFMSA", "Enactus", "Cairo, Egypt", "Open to Collaborate"],
     bridge: null,
   },
@@ -321,10 +332,9 @@ export function Story() {
           >
             It all started
             <br />
-            with a moment of{" "}
-            <span className="text-white/35">confusion</span>
+            in a classroom,
             <br />
-            in 2018.
+            <span className="text-white/35">in 2017.</span>
           </motion.h2>
 
           <motion.p
@@ -335,7 +345,7 @@ export function Story() {
             viewport={{ once: true }}
             className="text-[16px] text-white/30 max-w-md leading-relaxed"
           >
-            Seven years. Seven chapters. One question that{" "}
+            Nine years. Eight chapters. One question that{" "}
             hasn't changed.
           </motion.p>
         </div>
