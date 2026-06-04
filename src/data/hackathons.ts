@@ -1,4 +1,4 @@
-export type HackathonResult = "Finalist" | "Participant" | "Competitor"
+export type HackathonResult = "2nd Place" | "Finalist" | "Competitor" | "Participant"
 
 export type HackathonItem = {
   name: string
@@ -11,6 +11,15 @@ export type HackathonItem = {
 }
 
 export const hackathons: HackathonItem[] = [
+  {
+    name: "SalamHack 2025",
+    org: "JIS – Jordan Innovation Startups",
+    result: "2nd Place",
+    period: "Mar–Apr 2025",
+    location: "Jordan · Remote",
+    category: "Social Impact",
+    badge: "🕊️",
+  },
   {
     name: "SalamHack 2026",
     org: "Arab American Society for Education & Development",
@@ -82,14 +91,5 @@ export const hackathons: HackathonItem[] = [
     location: "Zewail City · On-site",
     category: "Space Tech",
     badge: "🚀",
-  },
-  {
-    name: "SalamHack 2025",
-    org: "JIS – Jordan Innovation Startups",
-    result: "Participant",
-    period: "Mar–Apr 2025",
-    location: "Jordan · Remote",
-    category: "Social Impact",
-    badge: "🕊️",
   },
 ]
