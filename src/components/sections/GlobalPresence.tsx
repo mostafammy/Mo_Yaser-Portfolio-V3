@@ -4,40 +4,43 @@ import { motion } from "motion/react"
 import WorldMap from "@/components/ui/world-map"
 import { fadeUp } from "@/lib/motion"
 
+// Cairo offset: pushed left so the label clears the nearby Amman dot
+const CAIRO = { lat: 30.044, lng: 31.236, label: "Cairo", labelOffset: { x: -42, y: -7 } }
+
 const DOTS = [
-  // Cairo → Copenhagen (IFMSA MWG + Health SWG)
+  // Cairo → Copenhagen (IFMSA MWG)
   {
-    start: { lat: 30.044, lng: 31.236, label: "Cairo" },
-    end: { lat: 55.676, lng: 12.568, label: "Copenhagen" },
+    start: CAIRO,
+    end: { lat: 55.676, lng: 12.568, label: "Copenhagen", labelOffset: { x: -70, y: -7 } },
   },
-  // Cairo → Helsinki (Junction 2025)
+  // Cairo → Espoo (Junction 2025)
   {
-    start: { lat: 30.044, lng: 31.236, label: "Cairo" },
-    end: { lat: 60.169, lng: 24.938, label: "Helsinki" },
+    start: CAIRO,
+    end: { lat: 60.169, lng: 24.938, label: "Espoo, Finland" },
   },
   // Cairo → Dubai (Create Apps Championship)
   {
-    start: { lat: 30.044, lng: 31.236, label: "Cairo" },
+    start: CAIRO,
     end: { lat: 25.204, lng: 55.271, label: "Dubai" },
   },
   // Cairo → Amman (SalamHack 2025)
   {
-    start: { lat: 30.044, lng: 31.236, label: "Cairo" },
+    start: CAIRO,
     end: { lat: 31.953, lng: 35.911, label: "Amman" },
   },
   // Cairo → Fort Mill, SC (IYNA Ideathon)
   {
-    start: { lat: 30.044, lng: 31.236, label: "Cairo" },
-    end: { lat: 35.009, lng: -80.94, label: "Fort Mill, SC" },
+    start: CAIRO,
+    end: { lat: 35.009, lng: -80.94, label: "Fort Mill, SC", labelOffset: { x: 6, y: 14 } },
   },
 ]
 
 const CITIES = [
   { name: "Cairo", flag: "🇪🇬", note: "Base" },
-  { name: "Copenhagen", flag: "🇩🇰", note: "2 roles" },
-  { name: "Helsinki", flag: "🇫🇮", note: "Junction" },
-  { name: "Dubai", flag: "🇦🇪", note: "Finalist" },
-  { name: "Amman", flag: "🇯🇴", note: "SalamHack" },
+  { name: "Copenhagen", flag: "🇩🇰", note: "IFMSA MWG" },
+  { name: "Espoo, Finland", flag: "🇫🇮", note: "Junction '25" },
+  { name: "Dubai", flag: "🇦🇪", note: "Dubai Chambers" },
+  { name: "Amman", flag: "🇯🇴", note: "SalamHack 2nd" },
   { name: "Fort Mill, SC", flag: "🇺🇸", note: "IYNA" },
 ]
 
