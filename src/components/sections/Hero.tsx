@@ -28,7 +28,7 @@ const ROLES = [
 const STATS = [
   { number: "130+", label: "Countries reached" },
   { number: "2 yrs", label: "IFMSA leadership" },
-  { number: "7+", label: "Hackathon finals" },
+  { number: "7+", label: "Hackathons · 1 win" },
 ]
 
 const globeConfig = {
@@ -183,7 +183,7 @@ export function Hero() {
         >
           <MorphingText
             texts={ROLES}
-            className="text-white/55 font-normal text-xl sm:text-3xl"
+            className="text-white/90 font-normal text-xl sm:text-3xl drop-shadow-[0_0_12px_rgba(255,255,255,0.08)]"
           />
         </motion.div>
 
@@ -197,9 +197,10 @@ export function Hero() {
         >
           <TypingAnimation
             className="text-base lg:text-[17px] text-white/35 leading-relaxed font-normal inline"
-            text="Building systems that scale — from production web applications to global health program frameworks across 130+ countries."
             duration={25}
-          />
+          >
+            Building systems that scale — from production web applications to global health program frameworks across 130+ countries.
+          </TypingAnimation>
         </motion.div>
 
         {/* CTAs */}
