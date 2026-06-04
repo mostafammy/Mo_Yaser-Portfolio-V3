@@ -73,8 +73,8 @@ const CHAPTERS: Chapter[] = [
     icon: <IconTrophy size={28} stroke={1.8} />,
     title: "Seven hackathons in eighteen months.",
     narrative:
-      "SalamHack 2025 — 2nd place, Jordan Innovation StartUps, April 2025. NASA Space Apps. Junction in Finland. EcoHack. Dubai Chambers. Seven competitions, four continents, eighteen months. Each one taught me something classrooms don't: the shape of your thinking under a deadline. You learn what you actually believe in when you only have 48 hours to prove it. Constraints make you creative, not cautious.",
-    tags: ["2nd Place · SalamHack 2025", "NASA", "Junction '25", "4 Continents"],
+      "Seven competitions. Eighteen months. Four continents. The one that defined the run: SalamHack 2025 — 2nd place, hosted by Jordan Innovation StartUps, April 2025. Competing alongside builders from across the Arab world and placing on the podium was the clearest proof that the approach worked. NASA Space Apps. Junction in Finland. EcoHack. Dubai Chambers. Each one sharpened the same skill: the shape of your thinking under a real deadline.",
+    tags: ["2nd Place · SalamHack 2025", "JIS · Jordan", "NASA", "Junction '25", "4 Continents"],
     bridge: "one year of going wider",
   },
   {
@@ -93,8 +93,8 @@ const CHAPTERS: Chapter[] = [
     icon: <IconWorld size={28} stroke={1.8} />,
     title: "A database schema for health policy.",
     narrative:
-      "The IFMSA Major Working Group changed how I see my work. Sitting in strategy sessions with delegates from 30+ countries, restructuring health program frameworks that 130+ NMOs depend on — I kept thinking: this is just systems design. Identify the constraints, restructure the relationships, validate with stakeholders, ship. The medium changes. The mental model doesn't.",
-    tags: ["IFMSA MWG", "Copenhagen", "ScholarX SWE", "Enactus Co-Founder"],
+      "The IFMSA Major Working Group changed how I see my work. Sitting in strategy sessions with delegates from 30+ countries, restructuring health program frameworks that 130+ NMOs depend on — I kept thinking: this is just systems design. Identify the constraints, restructure the relationships, validate with stakeholders, ship. Finalist at SalamHack 2026 in parallel — the competitive instinct didn't stop. The medium changes. The mental model doesn't.",
+    tags: ["IFMSA MWG", "SalamHack 2026 Finalist", "ScholarX SWE", "Enactus Co-Founder"],
     bridge: null,
   },
   {
