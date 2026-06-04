@@ -15,26 +15,34 @@ import { useRef, useState } from "react";
 
 export const FloatingDock = ({
   items,
+  activeSection,
+  sectionProgress = 0,
   desktopClassName,
   mobileClassName,
 }: {
   items: { title: string; icon: React.ReactNode; href: string }[];
+  activeSection?: string;
+  sectionProgress?: number;
   desktopClassName?: string;
   mobileClassName?: string;
 }) => {
   return (
     <>
-      <FloatingDockDesktop items={items} className={desktopClassName} />
-      <FloatingDockMobile items={items} className={mobileClassName} />
+      <FloatingDockDesktop items={items} activeSection={activeSection} sectionProgress={sectionProgress} className={desktopClassName} />
+      <FloatingDockMobile items={items} activeSection={activeSection} sectionProgress={sectionProgress} className={mobileClassName} />
     </>
   );
 };
 
 const FloatingDockMobile = ({
   items,
+  activeSection,
+  sectionProgress = 0,
   className,
 }: {
   items: { title: string; icon: React.ReactNode; href: string }[];
+  activeSection?: string;
+  sectionProgress?: number;
   className?: string;
 }) => {
   const [open, setOpen] = useState(false);
@@ -66,9 +74,37 @@ const FloatingDockMobile = ({
                 <a
                   href={item.href}
                   key={item.title}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 dark:bg-neutral-900"
+                  className={cn(
+                    "relative flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-300",
+                    activeSection === item.href
+                      ? "bg-transparent border border-blue-500/50 shadow-[0_0_16px_rgba(59,130,246,0.4)]"
+                      : "bg-gray-50 dark:bg-neutral-900"
+                  )}
                 >
-                  <div className="h-4 w-4">{item.icon}</div>
+                  {activeSection === item.href && (
+                    <motion.div
+                      layoutId="mobile-active-nav-item"
+                      className="absolute inset-0 rounded-full bg-blue-500/10"
+                      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                    >
+                      <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(59,130,246,0.2)" strokeWidth="4" />
+                        <circle
+                          cx="50" cy="50" r="48"
+                          fill="none"
+                          stroke="#3b82f6"
+                          strokeWidth="4"
+                          strokeLinecap="round"
+                          strokeDasharray="301.59"
+                          strokeDashoffset={301.59 - (301.59 * sectionProgress)}
+                          style={{ transition: "stroke-dashoffset 0.1s ease-out" }}
+                        />
+                      </svg>
+                    </motion.div>
+                  )}
+                  <div className={cn("relative z-10 h-4 w-4 transition-colors duration-300", activeSection === item.href ? "text-blue-400" : "text-neutral-500 dark:text-neutral-400")}>
+                    {item.icon}
+                  </div>
                 </a>
               </motion.div>
             ))}
@@ -87,9 +123,13 @@ const FloatingDockMobile = ({
 
 const FloatingDockDesktop = ({
   items,
+  activeSection,
+  sectionProgress = 0,
   className,
 }: {
   items: { title: string; icon: React.ReactNode; href: string }[];
+  activeSection?: string;
+  sectionProgress?: number;
   className?: string;
 }) => {
   let mouseX = useMotionValue(Infinity);
@@ -103,7 +143,7 @@ const FloatingDockDesktop = ({
       )}
     >
       {items.map((item) => (
-        <IconContainer mouseX={mouseX} key={item.title} {...item} />
+        <IconContainer mouseX={mouseX} key={item.title} {...item} isActive={activeSection === item.href} sectionProgress={sectionProgress} />
       ))}
     </motion.div>
   );
@@ -114,11 +154,15 @@ function IconContainer({
   title,
   icon,
   href,
+  isActive,
+  sectionProgress = 0,
 }: {
   mouseX: MotionValue;
   title: string;
   icon: React.ReactNode;
   href: string;
+  isActive?: boolean;
+  sectionProgress?: number;
 }) {
   let ref = useRef<HTMLDivElement>(null);
 
@@ -169,8 +213,32 @@ function IconContainer({
         style={{ width, height }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="relative flex aspect-square items-center justify-center rounded-full bg-gray-200 dark:bg-neutral-800"
+        className={cn(
+          "relative flex aspect-square items-center justify-center rounded-full transition-colors duration-300",
+          isActive ? "bg-transparent" : "bg-gray-200 dark:bg-neutral-800"
+        )}
       >
+        {isActive && (
+          <motion.div
+            layoutId="active-nav-item"
+            className="absolute inset-0 rounded-full bg-blue-500/10 shadow-[0_0_16px_rgba(59,130,246,0.3)]"
+            transition={{ type: "spring", stiffness: 350, damping: 25 }}
+          >
+            <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(59,130,246,0.2)" strokeWidth="4" />
+              <circle
+                cx="50" cy="50" r="48"
+                fill="none"
+                stroke="#3b82f6"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeDasharray="301.59"
+                strokeDashoffset={301.59 - (301.59 * sectionProgress)}
+                style={{ transition: "stroke-dashoffset 0.1s ease-out" }}
+              />
+            </svg>
+          </motion.div>
+        )}
         <AnimatePresence>
           {hovered && (
             <motion.div
@@ -185,7 +253,10 @@ function IconContainer({
         </AnimatePresence>
         <motion.div
           style={{ width: widthIcon, height: heightIcon }}
-          className="flex items-center justify-center"
+          className={cn(
+            "relative z-10 flex items-center justify-center transition-colors duration-300",
+            isActive ? "text-blue-400" : "text-neutral-500 dark:text-neutral-400"
+          )}
         >
           {icon}
         </motion.div>
