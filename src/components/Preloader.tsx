@@ -17,6 +17,12 @@ interface Particle {
   shape?: "circle" | "diamond";
 }
 
+interface Shockwave {
+  id: number;
+  x: number;
+  y: number;
+}
+
 const LOADING_MESSAGES = [
   "INITIALIZING WEBGL SUBSYSTEMS...",
   "ESTABLISHING SECURE CONNECTION...",
@@ -31,10 +37,11 @@ export function Preloader() {
   const [progress, setProgress] = useState(0);
   const [messageIndex, setMessageIndex] = useState(0);
   const [messagesLog, setMessagesLog] = useState<string[]>([]);
-  const [isHovering, setIsHovering] = useState(false);
+  const [hoverType, setHoverType] = useState<"none" | "window-controls" | "title-name" | "loader-ring">("none");
   const [isClicked, setIsClicked] = useState(false);
   const [isIdle, setIsIdle] = useState(true);
   const [particles, setParticles] = useState<Particle[]>([]);
+  const [shockwaves, setShockwaves] = useState<Shockwave[]>([]);
 
   // Refs for tracking movement details
   const lastSpawnRef = useRef({ x: 0, y: 0 });
@@ -63,29 +70,33 @@ export function Preloader() {
       const velocity = dist / dt; // pixels/ms
       lastTimeRef.current = now;
 
-      // High velocity spawns dense trails
-      const spawnThreshold = velocity > 1.5 ? 8 : 16;
+      // Denser trails on fast movement (spawn every 6px instead of 10px)
+      const spawnThreshold = velocity > 1.5 ? 6 : 10;
 
       if (dist > spawnThreshold) {
-        // Special color scheme for hovers
-        const colors = isHovering 
-          ? ["#06b6d4", "#a855f7", "#ffffff"] 
-          : ["#3b82f6", "#8b5cf6", "#06b6d4", "#a855f7"];
+        // High contrast colors responsive to hoverType
+        const colors = hoverType === "title-name"
+          ? ["#a855f7", "#ff007f", "#ffffff"]
+          : hoverType === "window-controls"
+          ? ["#ff5f56", "#ffbd2e", "#27c93f"] // Red, Yellow, Green sparks!
+          : hoverType === "loader-ring"
+          ? ["#06b6d4", "#3b82f6", "#ffffff"]
+          : ["#3b82f6", "#8b5cf6", "#06b6d4", "#a855f7", "#ff007f", "#ffffff"];
         
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
         const randomSize = velocity > 1.5 
-          ? Math.random() * 8 + 6 // bigger jet particles
-          : Math.random() * 6 + 3;
+          ? Math.random() * 12 + 6 // larger high-velocity particles
+          : Math.random() * 8 + 3;
         
-        // Spawn vector shooting BACKWARD from movement direction
+        // Negative movement vector for backward jet trails
         const moveAngle = Math.atan2(dy, dx);
         const oppositeAngle = moveAngle + Math.PI;
-        const spread = (Math.random() - 0.5) * 0.6; // cone spread
+        const spread = (Math.random() - 0.5) * 0.8; // wider cone spread
         const finalAngle = oppositeAngle + spread;
         
-        const particleSpeed = (velocity * 12) + Math.random() * 5;
+        const particleSpeed = (velocity * 16) + Math.random() * 8;
         const driftX = Math.cos(finalAngle) * particleSpeed;
-        const driftY = Math.sin(finalAngle) * particleSpeed - 5; // upward float bias
+        const driftY = Math.sin(finalAngle) * particleSpeed - 8; // upward bias
 
         const newParticle: Particle = {
           id: Date.now() + Math.random(),
@@ -95,10 +106,11 @@ export function Preloader() {
           size: randomSize,
           driftX,
           driftY,
-          shape: isHovering ? "diamond" : "circle"
+          shape: hoverType !== "none" ? "diamond" : "circle"
         };
 
-        setParticles((prev) => [...prev.slice(-40), newParticle]);
+        // Expanded buffer size to 120 particles for thick trails
+        setParticles((prev) => [...prev.slice(-120), newParticle]);
         lastSpawnRef.current = { x: e.clientX, y: e.clientY };
       }
     };
@@ -106,16 +118,19 @@ export function Preloader() {
     const handleMouseDown = (e: MouseEvent) => {
       setIsClicked(true);
       
-      // Cinematic click burst (14 particles firing outward 360deg)
+      // Spawn expanding shockwave
+      setShockwaves((prev) => [...prev, { id: Date.now() + Math.random(), x: e.clientX, y: e.clientY }]);
+
+      // Massive click burst (24 particles)
       const burstParticles: Particle[] = [];
-      const numParticles = 14;
+      const numParticles = 24;
       for (let i = 0; i < numParticles; i++) {
-        const angle = (i / numParticles) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
-        const speed = Math.random() * 45 + 20; // explode outwards
+        const angle = (i / numParticles) * Math.PI * 2 + (Math.random() - 0.5) * 0.25;
+        const speed = Math.random() * 60 + 30; // explode outwards faster
         const driftX = Math.cos(angle) * speed;
         const driftY = Math.sin(angle) * speed;
         
-        const colors = ["#ff007f", "#a855f7", "#06b6d4", "#ffffff"];
+        const colors = ["#ff007f", "#a855f7", "#06b6d4", "#ffffff", "#3b82f6"];
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
         
         burstParticles.push({
@@ -123,14 +138,14 @@ export function Preloader() {
           x: e.clientX,
           y: e.clientY,
           color: randomColor,
-          size: Math.random() * 6 + 3,
+          size: Math.random() * 10 + 4,
           driftX,
           driftY,
           shape: Math.random() > 0.5 ? "diamond" : "circle"
         });
       }
       
-      setParticles((prev) => [...prev.slice(-30), ...burstParticles]);
+      setParticles((prev) => [...prev.slice(-80), ...burstParticles]);
     };
 
     const handleMouseUp = () => setIsClicked(false);
@@ -144,7 +159,52 @@ export function Preloader() {
       window.removeEventListener("mousedown", handleMouseDown);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [cursorX, cursorY, isHovering]);
+  }, [cursorX, cursorY, hoverType]);
+
+  // Click & Hold Sparkler Emitter (Welding spark generator)
+  useEffect(() => {
+    if (!isClicked) return;
+
+    const interval = setInterval(() => {
+      const x = cursorX.get();
+      const y = cursorY.get();
+      if (x < 0) return; // skip if off-screen
+
+      const colors = hoverType === "window-controls"
+        ? ["#ff5f56", "#ffbd2e", "#27c93f"]
+        : hoverType === "title-name"
+        ? ["#ff007f", "#a855f7", "#ffffff"]
+        : hoverType === "loader-ring"
+        ? ["#06b6d4", "#3b82f6", "#ffffff"]
+        : ["#ff007f", "#a855f7", "#06b6d4", "#ffffff", "#ffaa00"];
+      
+      const numSparks = 3; // spawn 3 sparks every 30ms
+      const newSparks: Particle[] = [];
+
+      for (let i = 0; i < numSparks; i++) {
+        // Explode outward and upward
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 25 + 10;
+        const driftX = Math.cos(angle) * speed;
+        const driftY = Math.sin(angle) * speed - 15; // float upward faster
+
+        newSparks.push({
+          id: Date.now() + Math.random() + i,
+          x,
+          y,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: Math.random() * 8 + 2, // glowing ember sizes
+          driftX,
+          driftY,
+          shape: hoverType !== "none" ? "diamond" : "circle"
+        });
+      }
+
+      setParticles((prev) => [...prev.slice(-120), ...newSparks]);
+    }, 30); // 30ms high frequency emitter
+
+    return () => clearInterval(interval);
+  }, [isClicked, cursorX, cursorY, hoverType]);
 
   // Idle tracking stardust generator
   useEffect(() => {
@@ -290,9 +350,9 @@ export function Preloader() {
             {/* macOS Title Bar */}
             <div className="relative z-20 flex items-center px-4 h-12 border-b border-white/10 bg-black/40 backdrop-blur-md">
               <div 
-                className="flex gap-2 cursor-none"
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
+                className="flex gap-2 cursor-none pointer-events-auto"
+                onMouseEnter={() => setHoverType("window-controls")}
+                onMouseLeave={() => setHoverType("none")}
               >
                 <div className="w-3.5 h-3.5 rounded-full bg-[#ff5f56] border border-[#e0443e]" />
                 <div className="w-3.5 h-3.5 rounded-full bg-[#ffbd2e] border border-[#dea123]" />
@@ -327,8 +387,8 @@ export function Preloader() {
                   initial={{ opacity: 0, filter: "blur(12px)", scale: 0.9 }}
                   animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
                   transition={{ duration: 1.2, ease: "easeOut" }}
-                  onMouseEnter={() => setIsHovering(true)}
-                  onMouseLeave={() => setIsHovering(false)}
+                  onMouseEnter={() => setHoverType("title-name")}
+                  onMouseLeave={() => setHoverType("none")}
                   className="text-[clamp(2rem,5.5vw,4.5rem)] font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 mb-6 sm:mb-8 text-center select-none cursor-none pointer-events-auto"
                   style={{
                     textShadow: `0 0 ${progress * 0.4}px rgba(59, 130, 246, ${progress / 100})`
@@ -346,8 +406,8 @@ export function Preloader() {
                   {/* Sci-Fi HUD Progress Ring - Responsive scale */}
                   <div 
                     className="relative w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center rounded-full cursor-none pointer-events-auto"
-                    onMouseEnter={() => setIsHovering(true)}
-                    onMouseLeave={() => setIsHovering(false)}
+                    onMouseEnter={() => setHoverType("loader-ring")}
+                    onMouseLeave={() => setHoverType("none")}
                     style={{
                       boxShadow: `0 0 ${progress * 0.6}px rgba(59, 130, 246, ${(progress / 100) * 0.3})`
                     }}
@@ -405,6 +465,36 @@ export function Preloader() {
             </div>
           </div>
 
+          {/* Click Shockwave Ripples (Hidden on mobile) */}
+          <div className="pointer-events-none fixed inset-0 z-[99999] hidden md:block">
+            {shockwaves.map((sw) => (
+              <motion.div
+                key={sw.id}
+                initial={{
+                  x: sw.x,
+                  y: sw.y,
+                  translateX: "-50%",
+                  translateY: "-50%",
+                  width: 0,
+                  height: 0,
+                  opacity: 1,
+                  borderWidth: "3px"
+                }}
+                animate={{
+                  width: 250,
+                  height: 250,
+                  opacity: 0,
+                  borderWidth: "0.5px"
+                }}
+                transition={{ duration: 0.8, ease: [0.1, 0.8, 0.3, 1] }}
+                onAnimationComplete={() => {
+                  setShockwaves((prev) => prev.filter((item) => item.id !== sw.id));
+                }}
+                className="absolute rounded-full border border-cyan-400 shadow-[0_0_30px_rgba(6,182,212,0.6),inset_0_0_20px_rgba(6,182,212,0.3)]"
+              />
+            ))}
+          </div>
+
           {/* Stardust Particle Trail (Hidden on mobile for performance) */}
           <div className="pointer-events-none fixed inset-0 z-[99999] hidden md:block">
             {particles.map((p) => (
@@ -450,38 +540,69 @@ export function Preloader() {
             }}
             className="pointer-events-none fixed top-0 left-0 z-[100000] hidden md:block"
           >
-            {/* Outer Ring - Multi-layered glow, rotation, and idle breath */}
+            {/* Ambient Light Halo - dynamic scale and glowing background flare */}
+            <motion.div 
+              animate={{
+                scale: isClicked ? 1.4 : hoverType === "title-name" ? 1.8 : hoverType === "loader-ring" ? 1.6 : hoverType === "window-controls" ? 1.1 : 1,
+                opacity: isIdle ? 0.45 : 0.85,
+                background: isClicked
+                  ? "radial-gradient(circle, rgba(168,85,247,0.2) 0%, rgba(255,0,127,0.05) 70%)"
+                  : hoverType === "window-controls"
+                  ? "radial-gradient(circle, rgba(255,95,86,0.2) 0%, rgba(255,95,86,0.02) 70%)"
+                  : hoverType === "title-name"
+                  ? "radial-gradient(circle, rgba(168,85,247,0.25) 0%, rgba(255,0,127,0.05) 70%)"
+                  : hoverType === "loader-ring"
+                  ? "radial-gradient(circle, rgba(6,182,212,0.2) 0%, rgba(59,130,246,0.05) 70%)"
+                  : "radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(6,182,212,0.02) 70%)"
+              }}
+              transition={{ type: "spring", stiffness: 200, damping: 25 }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-3xl pointer-events-none mix-blend-screen"
+            />
+            {/* Outer Ring - Multi-layered scale, target border-radius, rotation, and idle breath */}
             <motion.div
               animate={{
-                scale: isClicked ? 0.85 : isHovering ? 1.4 : isIdle ? [1, 1.12, 1] : 1,
+                scale: isClicked ? 0.75 : hoverType === "title-name" ? 1.6 : hoverType === "window-controls" ? 0.75 : hoverType === "loader-ring" ? 1.3 : isIdle ? [1, 1.12, 1] : 1,
                 borderColor: isClicked 
-                  ? "rgba(168, 85, 247, 0.9)" 
-                  : isHovering 
-                  ? "rgba(6, 182, 212, 0.8)" 
+                  ? "#a855f7" 
+                  : hoverType === "window-controls" 
+                  ? "#ff5f56" 
+                  : hoverType === "title-name" 
+                  ? "#a855f7" 
+                  : hoverType === "loader-ring" 
+                  ? "#06b6d4" 
                   : "rgba(59, 130, 246, 0.35)",
-                borderWidth: isClicked ? "3px" : "1.5px",
-                rotate: isHovering ? 180 : 0
+                borderWidth: isClicked ? "2px" : "1.5px",
+                borderRadius: hoverType === "window-controls" ? "8px" : "9999px", // Rounded square target for windows button!
+                rotate: isClicked ? 360 : hoverType === "title-name" ? -180 : hoverType === "loader-ring" ? 180 : 0
               }}
               transition={{ 
-                scale: isIdle && !isClicked && !isHovering 
+                scale: isIdle && !isClicked && hoverType === "none"
                   ? { repeat: Infinity, duration: 2, ease: "easeInOut" } 
                   : { type: "spring", stiffness: 300, damping: 20 },
                 borderColor: { duration: 0.2 },
-                rotate: { repeat: Infinity, duration: 6, ease: "linear" } 
+                rotate: isClicked
+                  ? { repeat: Infinity, duration: 1, ease: "linear" } // Rapid spin on hold
+                  : { repeat: Infinity, duration: 6, ease: "linear" } 
               }}
-              className="w-10 h-10 rounded-full border border-dashed flex items-center justify-center relative"
+              className="w-10 h-10 border border-dashed flex items-center justify-center relative"
               style={{
-                boxShadow: isHovering 
-                  ? "0 0 15px rgba(6, 182, 212, 0.4), inset 0 0 10px rgba(6, 182, 212, 0.2)" 
+                boxShadow: isClicked
+                  ? "0 0 20px rgba(168, 85, 247, 0.5), inset 0 0 10px rgba(168, 85, 247, 0.3)"
+                  : hoverType === "window-controls"
+                  ? "0 0 15px rgba(255, 95, 86, 0.4)"
+                  : hoverType === "title-name"
+                  ? "0 0 20px rgba(168, 85, 247, 0.4)"
+                  : hoverType === "loader-ring"
+                  ? "0 0 15px rgba(6, 182, 212, 0.4)"
                   : isIdle
                   ? "0 0 12px rgba(59, 130, 246, 0.25)"
                   : "0 0 8px rgba(59, 130, 246, 0.1)"
               }}
             >
               {/* Secondary Orbiting Ring */}
-              {isHovering && (
+              {hoverType !== "none" && (
                 <motion.div
-                  animate={{ rotate: -360 }}
+                  animate={{ rotate: hoverType === "title-name" ? -360 : 360 }}
                   transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
                   className="absolute inset-0.5 rounded-full border border-dotted border-purple-400/40"
                 />
@@ -490,19 +611,27 @@ export function Preloader() {
               {/* Inner Core */}
               <motion.div
                 animate={{
-                  scale: isClicked ? 1.6 : isHovering ? 1.2 : 1,
+                  scale: isClicked ? 1.5 : hoverType === "title-name" ? 1.25 : hoverType === "window-controls" ? 0.75 : 1,
                   backgroundColor: isClicked 
+                    ? "#ff007f" 
+                    : hoverType === "window-controls" 
+                    ? "#ff5f56" 
+                    : hoverType === "title-name" 
                     ? "#a855f7" 
-                    : isHovering 
+                    : hoverType === "loader-ring" 
                     ? "#06b6d4" 
                     : "#3b82f6",
                 }}
-                className="w-2.5 h-2.5 rounded-full shadow-[0_0_10px_currentColor] text-blue-500"
+                className="w-2.5 h-2.5 rounded-full shadow-[0_0_10px_currentColor] text-blue-500 transition-colors duration-150"
                 style={{
-                  boxShadow: isHovering 
-                    ? "0 0 12px #06b6d4" 
-                    : isClicked 
-                    ? "0 0 15px #a855f7" 
+                  boxShadow: isClicked 
+                    ? "0 0 18px #ff007f, 0 0 35px #ff007f"
+                    : hoverType === "window-controls"
+                    ? "0 0 12px #ff5f56"
+                    : hoverType === "title-name"
+                    ? "0 0 15px #a855f7"
+                    : hoverType === "loader-ring"
+                    ? "0 0 12px #06b6d4"
                     : "0 0 8px #3b82f6"
                 }}
               />
