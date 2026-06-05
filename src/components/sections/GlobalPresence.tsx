@@ -4,14 +4,14 @@ import { motion } from "motion/react"
 import WorldMap from "@/components/ui/world-map"
 import { fadeUp } from "@/lib/motion"
 
-// Cairo offset: pushed left so the label clears the nearby Amman dot
-const CAIRO = { lat: 30.044, lng: 31.236, label: "Cairo", labelOffset: { x: -42, y: -7 } }
+// Cairo pushed left so its label clears the nearby Amman dot (only 10px apart on x-axis)
+const CAIRO = { lat: 30.044, lng: 31.236, label: "Cairo", labelOffset: { x: -40, y: -7 } }
 
 const DOTS = [
   // Cairo → Copenhagen (IFMSA MWG)
   {
     start: CAIRO,
-    end: { lat: 55.676, lng: 12.568, label: "Copenhagen", labelOffset: { x: -70, y: -7 } },
+    end: { lat: 55.676, lng: 12.568, label: "Copenhagen" },
   },
   // Cairo → Espoo (Junction 2025)
   {
@@ -31,7 +31,7 @@ const DOTS = [
   // Cairo → Fort Mill, SC (IYNA Ideathon)
   {
     start: CAIRO,
-    end: { lat: 35.009, lng: -80.94, label: "Fort Mill, SC", labelOffset: { x: 6, y: 14 } },
+    end: { lat: 35.009, lng: -80.94, label: "Fort Mill, SC" },
   },
 ]
 
