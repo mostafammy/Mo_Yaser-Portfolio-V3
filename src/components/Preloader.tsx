@@ -47,7 +47,7 @@ export function Preloader() {
   const [progress, setProgress] = useState(0);
   const [messageIndex, setMessageIndex] = useState(0);
   const [messagesLog, setMessagesLog] = useState<string[]>([]);
-  const [hoverType, setHoverType] = useState<"none" | "window-controls" | "title-name" | "loader-ring">("none");
+  const [hoverType, setHoverType] = useState<"none" | "window-controls" | "title-name" | "loader-ring" | "terminal-text">("none");
   const [isClicked, setIsClicked] = useState(false);
   const [isIdle, setIsIdle] = useState(true);
   const [particles, setParticles] = useState<Particle[]>([]);
@@ -114,6 +114,8 @@ export function Preloader() {
           ? ["#ff5f56", "#ffbd2e", "#27c93f"] // Red, Yellow, Green sparks!
           : hoverType === "loader-ring"
           ? ["#06b6d4", "#3b82f6", "#ffffff"]
+          : hoverType === "terminal-text"
+          ? ["#22c55e", "#4ade80", "#10b981", "#ffffff"] // Green matrix sparks!
           : ["#3b82f6", "#8b5cf6", "#06b6d4", "#a855f7", "#ff007f", "#ffffff"];
         
         // Add wild fire colors if chargeLevel is high
@@ -266,6 +268,8 @@ export function Preloader() {
         ? ["#ff007f", "#a855f7", "#ffffff"]
         : hoverType === "loader-ring"
         ? ["#06b6d4", "#3b82f6", "#ffffff"]
+        : hoverType === "terminal-text"
+        ? ["#22c55e", "#4ade80", "#10b981", "#ffffff"]
         : ["#ff007f", "#a855f7", "#06b6d4", "#ffffff", "#ffaa00"];
       
       const numSparks = 3; // spawn 3 sparks every 30ms
@@ -473,7 +477,11 @@ export function Preloader() {
             <div className="flex-1 relative z-20 flex flex-col items-center justify-center p-4 overflow-hidden">
               
               {/* Terminal Logs (Positioned absolutely in top-left, hidden on small screens to prevent overlap) */}
-              <div className="absolute top-6 left-6 z-10 hidden md:flex flex-col gap-2.5 font-mono text-[11px] text-blue-400/80 tracking-widest pointer-events-none max-w-lg opacity-70">
+              <div 
+                className="absolute top-16 left-6 z-20 hidden md:flex flex-col gap-2.5 font-mono text-[11px] text-blue-400/80 tracking-widest pointer-events-auto cursor-none max-w-lg opacity-70"
+                onMouseEnter={() => setHoverType("terminal-text")}
+                onMouseLeave={() => setHoverType("none")}
+              >
                  {messagesLog.map((msg, idx) => (
                    <motion.div key={idx} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
                      <span className="text-white/40 mr-2 tracking-normal">mostafa@macbook-pro ~ %</span>
@@ -698,99 +706,187 @@ export function Preloader() {
             {/* Ambient Light Halo - dynamic scale and glowing background flare */}
             <motion.div 
               animate={{
-                scale: isClicked ? 1.4 : hoverType === "title-name" ? 1.8 : hoverType === "loader-ring" ? 1.6 : hoverType === "window-controls" ? 1.1 : 1,
+                scale: isClicked ? 1.4 : hoverType === "title-name" ? 2.0 : hoverType === "loader-ring" ? 1.8 : hoverType === "window-controls" ? 1.2 : hoverType === "terminal-text" ? 1.3 : 1,
                 opacity: isIdle ? 0.45 : 0.85,
                 background: isClicked
-                  ? "radial-gradient(circle, rgba(168,85,247,0.2) 0%, rgba(255,0,127,0.05) 70%)"
-                  : hoverType === "window-controls"
-                  ? "radial-gradient(circle, rgba(255,95,86,0.2) 0%, rgba(255,95,86,0.02) 70%)"
-                  : hoverType === "title-name"
                   ? "radial-gradient(circle, rgba(168,85,247,0.25) 0%, rgba(255,0,127,0.05) 70%)"
+                  : hoverType === "window-controls"
+                  ? "radial-gradient(circle, rgba(255,95,86,0.25) 0%, rgba(255,95,86,0.02) 70%)"
+                  : hoverType === "title-name"
+                  ? "radial-gradient(circle, rgba(168,85,247,0.3) 0%, rgba(255,0,127,0.05) 70%)"
                   : hoverType === "loader-ring"
-                  ? "radial-gradient(circle, rgba(6,182,212,0.2) 0%, rgba(59,130,246,0.05) 70%)"
+                  ? "radial-gradient(circle, rgba(6,182,212,0.25) 0%, rgba(59,130,246,0.05) 70%)"
+                  : hoverType === "terminal-text"
+                  ? "radial-gradient(circle, rgba(34,197,94,0.2) 0%, rgba(34,197,94,0.02) 70%)"
                   : "radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(6,182,212,0.02) 70%)"
               }}
               transition={{ type: "spring", stiffness: 200, damping: 25 }}
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-3xl pointer-events-none mix-blend-screen"
             />
-            {/* Outer Ring - Multi-layered scale, target border-radius, rotation, and idle breath */}
-            <motion.div
-              animate={{
-                scale: isClicked ? 0.75 : hoverType === "title-name" ? 1.6 : hoverType === "window-controls" ? 0.75 : hoverType === "loader-ring" ? 1.3 : isIdle ? [1, 1.12, 1] : 1,
-                borderColor: isClicked 
-                  ? "#a855f7" 
-                  : hoverType === "window-controls" 
-                  ? "#ff5f56" 
-                  : hoverType === "title-name" 
-                  ? "#a855f7" 
-                  : hoverType === "loader-ring" 
-                  ? "#06b6d4" 
-                  : "rgba(59, 130, 246, 0.35)",
-                borderWidth: isClicked ? "2px" : "1.5px",
-                borderRadius: hoverType === "window-controls" ? "8px" : "9999px", // Rounded square target for windows button!
-                rotate: isClicked ? 360 : hoverType === "title-name" ? -180 : hoverType === "loader-ring" ? 180 : 0
-              }}
-              transition={{ 
-                scale: isIdle && !isClicked && hoverType === "none"
-                  ? { repeat: Infinity, duration: 2, ease: "easeInOut" } 
-                  : { type: "spring", stiffness: 300, damping: 20 },
-                borderColor: { duration: 0.2 },
-                rotate: isClicked
-                  ? { repeat: Infinity, duration: 1, ease: "linear" } // Rapid spin on hold
-                  : { repeat: Infinity, duration: 6, ease: "linear" } 
-              }}
-              className="w-10 h-10 border border-dashed flex items-center justify-center relative"
-              style={{
-                boxShadow: isClicked
-                  ? "0 0 20px rgba(168, 85, 247, 0.5), inset 0 0 10px rgba(168, 85, 247, 0.3)"
-                  : hoverType === "window-controls"
-                  ? "0 0 15px rgba(255, 95, 86, 0.4)"
-                  : hoverType === "title-name"
-                  ? "0 0 20px rgba(168, 85, 247, 0.4)"
-                  : hoverType === "loader-ring"
-                  ? "0 0 15px rgba(6, 182, 212, 0.4)"
-                  : isIdle
-                  ? "0 0 12px rgba(59, 130, 246, 0.25)"
-                  : "0 0 8px rgba(59, 130, 246, 0.1)"
-              }}
-            >
-              {/* Secondary Orbiting Ring */}
-              {hoverType !== "none" && (
+            
+            {/* Core morphing cursor container */}
+            <AnimatePresence mode="wait">
+              {hoverType === "terminal-text" ? (
+                // RETRO BLINKING CARET BLOCK
                 <motion.div
-                  animate={{ rotate: hoverType === "title-name" ? -360 : 360 }}
-                  transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-                  className="absolute inset-0.5 rounded-full border border-dotted border-purple-400/40"
-                />
+                  key="terminal-caret"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex items-center gap-1.5 font-mono text-[13px] text-green-400 font-bold"
+                >
+                  <motion.div
+                    animate={{ opacity: [1, 0] }}
+                    transition={{ repeat: Infinity, duration: 0.8, ease: (v) => (v < 0.5 ? 0 : 1) }}
+                    className="w-3 h-5 bg-green-500 shadow-[0_0_8px_#22c55e]"
+                  />
+                  <span className="text-[9px] tracking-wider text-green-400/80 bg-green-950/60 px-1 border border-green-500/30 rounded select-none">
+                    EDIT
+                  </span>
+                </motion.div>
+              ) : hoverType === "window-controls" ? (
+                // HIGH-TECH RED TARGET BOX
+                <motion.div
+                  key="window-controls-target"
+                  initial={{ opacity: 0, scale: 0.6, rotate: -45 }}
+                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                  exit={{ opacity: 0, scale: 0.6, rotate: 45 }}
+                  transition={{ type: "spring", stiffness: 350, damping: 20 }}
+                  className="w-9 h-9 border border-red-500/60 rounded flex items-center justify-center relative bg-red-950/20"
+                  style={{
+                    boxShadow: "0 0 15px rgba(255, 95, 86, 0.3), inset 0 0 8px rgba(255, 95, 86, 0.2)"
+                  }}
+                >
+                  {/* Target Crosshair brackets */}
+                  <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-red-500" />
+                  <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-red-500" />
+                  <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-red-500" />
+                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-red-500" />
+                  
+                  {/* Inner Warning Core Dot */}
+                  <motion.div 
+                    animate={{ scale: [1, 1.4, 1] }}
+                    transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+                    className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_#ff5f56]"
+                  />
+                </motion.div>
+              ) : hoverType === "title-name" ? (
+                // PURPLE ASTROLABE WITH CONCENTRIC ROTATING RINGS
+                <motion.div
+                  key="title-astrolabe"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="relative w-16 h-16 flex items-center justify-center"
+                >
+                  {/* Outer Ring - Dashed, rotates clockwise */}
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+                    className="absolute inset-0 rounded-full border border-dashed border-purple-500/70"
+                    style={{
+                      boxShadow: "0 0 15px rgba(168, 85, 247, 0.3)"
+                    }}
+                  />
+                  {/* Middle Ring - Dotted, rotates counter-clockwise */}
+                  <motion.div
+                    animate={{ rotate: -360 }}
+                    transition={{ repeat: Infinity, duration: 5, ease: "linear" }}
+                    className="absolute inset-2.5 rounded-full border border-dotted border-pink-500/60"
+                  />
+                  {/* Inner Ring - Solid, rotates clockwise */}
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                    className="absolute inset-5 rounded-full border border-purple-400/40 flex items-center justify-center"
+                  >
+                    {/* Tiny Crosshair lines */}
+                    <div className="absolute top-0 bottom-0 w-[1px] bg-purple-400/30" />
+                    <div className="absolute left-0 right-0 h-[1px] bg-purple-400/30" />
+                  </motion.div>
+                  {/* Glowing Pink/White Core Dot */}
+                  <motion.div
+                    animate={{ scale: [1, 1.25, 1] }}
+                    transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                    className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 shadow-[0_0_12px_#a855f7]"
+                  />
+                </motion.div>
+              ) : hoverType === "loader-ring" ? (
+                // DIGITAL CYAN SCANNER WITH CURRENT PROGRESS PERCENTAGE
+                <motion.div
+                  key="loader-ring-scanner"
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.6 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="w-16 h-16 rounded-full border border-cyan-500/50 flex flex-col items-center justify-center relative bg-cyan-950/25"
+                  style={{
+                    boxShadow: "0 0 20px rgba(6, 182, 212, 0.3), inset 0 0 10px rgba(6, 182, 212, 0.15)"
+                  }}
+                >
+                  {/* Outer spinning dash pattern */}
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                    className="absolute inset-[-2px] rounded-full border border-cyan-400 border-t-transparent border-b-transparent"
+                  />
+                  {/* Scanner Grid Lines / Overlay */}
+                  <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.05)_1px,transparent_1px)] bg-[size:4px_4px] rounded-full pointer-events-none" />
+                  
+                  {/* Digital text */}
+                  <span className="font-mono text-[10px] font-bold text-cyan-400 select-none tracking-tighter tabular-nums z-10 leading-none">
+                    {progress}%
+                  </span>
+                  <span className="font-mono text-[5px] text-cyan-400/60 uppercase tracking-[0.1em] scale-75 select-none z-10 leading-none mt-0.5">
+                    SCAN
+                  </span>
+                </motion.div>
+              ) : (
+                // STANDARD DYNAMIC CURSOR (DEFAULT)
+                <motion.div
+                  key="standard-cursor"
+                  animate={{
+                    scale: isClicked ? 0.75 : isIdle ? [1, 1.12, 1] : 1,
+                    borderColor: isClicked ? "#a855f7" : "rgba(59, 130, 246, 0.35)",
+                    borderWidth: isClicked ? "2px" : "1.5px",
+                    rotate: isClicked ? 360 : 0
+                  }}
+                  transition={{ 
+                    scale: isIdle && !isClicked
+                      ? { repeat: Infinity, duration: 2, ease: "easeInOut" } 
+                      : { type: "spring", stiffness: 300, damping: 20 },
+                    borderColor: { duration: 0.2 },
+                    rotate: isClicked
+                      ? { repeat: Infinity, duration: 1, ease: "linear" } 
+                      : { duration: 0.3 }
+                  }}
+                  className="w-10 h-10 border border-dashed rounded-full flex items-center justify-center relative"
+                  style={{
+                    boxShadow: isClicked
+                      ? "0 0 20px rgba(168, 85, 247, 0.5), inset 0 0 10px rgba(168, 85, 247, 0.3)"
+                      : isIdle
+                      ? "0 0 12px rgba(59, 130, 246, 0.25)"
+                      : "0 0 8px rgba(59, 130, 246, 0.1)"
+                  }}
+                >
+                  {/* Inner Core */}
+                  <motion.div
+                    animate={{
+                      scale: isClicked ? 1.5 : 1,
+                      backgroundColor: isClicked ? "#ff007f" : "#3b82f6",
+                    }}
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{
+                      boxShadow: isClicked 
+                        ? "0 0 18px #ff007f, 0 0 35px #ff007f"
+                        : "0 0 8px #3b82f6"
+                    }}
+                  />
+                </motion.div>
               )}
-              
-              {/* Inner Core */}
-              <motion.div
-                animate={{
-                  scale: isClicked ? 1.5 : hoverType === "title-name" ? 1.25 : hoverType === "window-controls" ? 0.75 : 1,
-                  backgroundColor: isClicked 
-                    ? "#ff007f" 
-                    : hoverType === "window-controls" 
-                    ? "#ff5f56" 
-                    : hoverType === "title-name" 
-                    ? "#a855f7" 
-                    : hoverType === "loader-ring" 
-                    ? "#06b6d4" 
-                    : "#3b82f6",
-                }}
-                className="w-2.5 h-2.5 rounded-full shadow-[0_0_10px_currentColor] text-blue-500 transition-colors duration-150"
-                style={{
-                  boxShadow: isClicked 
-                    ? "0 0 18px #ff007f, 0 0 35px #ff007f"
-                    : hoverType === "window-controls"
-                    ? "0 0 12px #ff5f56"
-                    : hoverType === "title-name"
-                    ? "0 0 15px #a855f7"
-                    : hoverType === "loader-ring"
-                    ? "0 0 12px #06b6d4"
-                    : "0 0 8px #3b82f6"
-                }}
-              />
-            </motion.div>
+            </AnimatePresence>
           </motion.div>
         </motion.div>
       )}
