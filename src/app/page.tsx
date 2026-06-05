@@ -1,4 +1,5 @@
 import { SmoothCursor } from "@/components/ui/smooth-cursor"
+import { Preloader } from "@/components/Preloader"
 import { FloatingNav } from "@/components/FloatingNav"
 import { Hero } from "@/components/sections/Hero"
 import { ScrollMarquee } from "@/components/sections/ScrollMarquee"
@@ -13,6 +14,7 @@ import { Contact } from "@/components/sections/Contact"
 export default function Home() {
   return (
     <>
+      <Preloader />
       <SmoothCursor />
       <FloatingNav />
       <main>
