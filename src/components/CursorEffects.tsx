@@ -129,29 +129,26 @@ export function CursorEffects({ hoverType, progress, chargeLevelRef, updateCharg
     const handleMouseDown = (e: MouseEvent) => {
       setIsClicked(true);
 
-      updateCharge((prev) => {
-        const next = Math.min(20, prev + 1.25);
+      const nextCharge = Math.min(20, chargeLevelRef.current + 1.25);
+      updateCharge(nextCharge);
 
-        if (next > 4) {
-          const debrisCount = Math.min(8, Math.floor(next / 1.5));
-          const newDebris: DebrisItem[] = [];
-          for (let i = 0; i < debrisCount; i++) {
-            newDebris.push({
-              id: Date.now() + Math.random() + i,
-              x: e.clientX,
-              y: e.clientY,
-              size: Math.random() * 20 + 8,
-              driftX: (Math.random() - 0.5) * 250,
-              duration: Math.random() * 0.5 + 0.8,
-              color: Math.random() > 0.6 ? "#2a2b36" : Math.random() > 0.3 ? "#1e1e24" : "#4c1d95",
-              rotateTo: Math.random() > 0.5 ? 360 : -360
-            });
-          }
-          setDebris((prev) => [...prev, ...newDebris]);
+      if (nextCharge > 4) {
+        const debrisCount = Math.min(8, Math.floor(nextCharge / 1.5));
+        const newDebris: DebrisItem[] = [];
+        for (let i = 0; i < debrisCount; i++) {
+          newDebris.push({
+            id: Date.now() + Math.random() + i,
+            x: e.clientX,
+            y: e.clientY,
+            size: Math.random() * 20 + 8,
+            driftX: (Math.random() - 0.5) * 250,
+            duration: Math.random() * 0.5 + 0.8,
+            color: Math.random() > 0.6 ? "#2a2b36" : Math.random() > 0.3 ? "#1e1e24" : "#4c1d95",
+            rotateTo: Math.random() > 0.5 ? 360 : -360
+          });
         }
-
-        return next;
-      });
+        setDebris((prev) => [...prev, ...newDebris]);
+      }
 
       setShockwaves((prev) => [...prev, { id: Date.now() + Math.random(), x: e.clientX, y: e.clientY }]);
 
@@ -199,31 +196,28 @@ export function CursorEffects({ hoverType, progress, chargeLevelRef, updateCharg
     if (!isClicked) return;
 
     const interval = setInterval(() => {
-      updateCharge((prev) => {
-        const next = Math.min(20, prev + 0.4);
+      const nextCharge = Math.min(20, chargeLevelRef.current + 0.4);
+      updateCharge(nextCharge);
 
-        if (next > 4 && Math.random() > 0.45) {
-          const x = cursorX.get();
-          const y = cursorY.get();
-          if (x >= 0) {
-            setDebris((prevDebris) => [
-              ...prevDebris,
-              {
-                id: Date.now() + Math.random(),
-                x,
-                y,
-                size: Math.random() * 18 + 8,
-                driftX: (Math.random() - 0.5) * 200,
-                duration: Math.random() * 0.5 + 0.8,
-                color: Math.random() > 0.6 ? "#2a2b36" : Math.random() > 0.3 ? "#1e1e24" : "#4c1d95",
-                rotateTo: Math.random() > 0.5 ? 360 : -360
-              }
-            ]);
-          }
+      if (nextCharge > 4 && Math.random() > 0.45) {
+        const x = cursorX.get();
+        const y = cursorY.get();
+        if (x >= 0) {
+          setDebris((prevDebris) => [
+            ...prevDebris,
+            {
+              id: Date.now() + Math.random(),
+              x,
+              y,
+              size: Math.random() * 18 + 8,
+              driftX: (Math.random() - 0.5) * 200,
+              duration: Math.random() * 0.5 + 0.8,
+              color: Math.random() > 0.6 ? "#2a2b36" : Math.random() > 0.3 ? "#1e1e24" : "#4c1d95",
+              rotateTo: Math.random() > 0.5 ? 360 : -360
+            }
+          ]);
         }
-
-        return next;
-      });
+      }
 
       const x = cursorX.get();
       const y = cursorY.get();
