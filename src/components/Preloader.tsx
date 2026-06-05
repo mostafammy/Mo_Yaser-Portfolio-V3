@@ -93,10 +93,15 @@ export function Preloader() {
           key="preloader"
           initial={{ opacity: 1 }}
           exit={{ 
-            opacity: 0,
-            scale: 1.15,
-            filter: "blur(20px)",
-            transition: { duration: 0.9, ease: [0.76, 0, 0.24, 1] } 
+            opacity: [1, 1, 0],
+            scale: [1, 0.98, 12],
+            filter: ["blur(0px)", "blur(0px)", "blur(40px) brightness(4) contrast(2)"],
+            rotate: [0, -1, 5],
+            transition: { 
+              duration: 1.2, 
+              ease: [0.8, 0, 0.1, 1], // Cinematic steep bezier
+              times: [0, 0.3, 1] 
+            } 
           }}
           className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#050505] overflow-hidden select-none cursor-none"
         >
