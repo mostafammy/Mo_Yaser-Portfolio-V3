@@ -23,6 +23,16 @@ interface Shockwave {
   y: number;
 }
 
+interface DebrisItem {
+  id: number;
+  x: number;
+  y: number;
+  size: number;
+  driftX: number;
+  duration: number;
+  color: string;
+}
+
 const LOADING_MESSAGES = [
   "INITIALIZING WEBGL SUBSYSTEMS...",
   "ESTABLISHING SECURE CONNECTION...",
@@ -42,6 +52,29 @@ export function Preloader() {
   const [isIdle, setIsIdle] = useState(true);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [shockwaves, setShockwaves] = useState<Shockwave[]>([]);
+  const [debris, setDebris] = useState<DebrisItem[]>([]);
+  const [chargeLevel, setChargeLevel] = useState(0);
+
+  const chargeLevelRef = useRef(0);
+
+  // Synchronized state & ref update helper
+  const updateCharge = (value: number | ((prev: number) => number)) => {
+    setChargeLevel((prev) => {
+      const next = typeof value === "function" ? value(prev) : value;
+      chargeLevelRef.current = next;
+      return next;
+    });
+  };
+
+  // Click decay handler (slowly reduces click mashing energy over time)
+  useEffect(() => {
+    const decayInterval = setInterval(() => {
+      if (!isClicked) {
+        updateCharge((prev) => Math.max(0, prev - 0.45));
+      }
+    }, 150);
+    return () => clearInterval(decayInterval);
+  }, [isClicked]);
 
   // Refs for tracking movement details
   const lastSpawnRef = useRef({ x: 0, y: 0 });
@@ -74,8 +107,8 @@ export function Preloader() {
       const spawnThreshold = velocity > 1.5 ? 6 : 10;
 
       if (dist > spawnThreshold) {
-        // High contrast colors responsive to hoverType
-        const colors = hoverType === "title-name"
+        // High contrast colors responsive to hoverType and chargeLevel
+        let colors = hoverType === "title-name"
           ? ["#a855f7", "#ff007f", "#ffffff"]
           : hoverType === "window-controls"
           ? ["#ff5f56", "#ffbd2e", "#27c93f"] // Red, Yellow, Green sparks!
@@ -83,6 +116,11 @@ export function Preloader() {
           ? ["#06b6d4", "#3b82f6", "#ffffff"]
           : ["#3b82f6", "#8b5cf6", "#06b6d4", "#a855f7", "#ff007f", "#ffffff"];
         
+        // Add wild fire colors if chargeLevel is high
+        if (chargeLevelRef.current > 8) {
+          colors = [...colors, "#f97316", "#ef4444", "#ffffff"];
+        }
+
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
         const randomSize = velocity > 1.5 
           ? Math.random() * 12 + 6 // larger high-velocity particles
@@ -117,6 +155,31 @@ export function Preloader() {
 
     const handleMouseDown = (e: MouseEvent) => {
       setIsClicked(true);
+
+      // Increment chargeLevel (capped at 20) and spawn debris
+      updateCharge((prev) => {
+        const next = Math.min(20, prev + 1.25);
+
+        // Spawn falling debris / shattered stones if click charge is high (Level 2+)
+        if (next > 4) {
+          const debrisCount = Math.min(8, Math.floor(next / 1.5));
+          const newDebris: DebrisItem[] = [];
+          for (let i = 0; i < debrisCount; i++) {
+            newDebris.push({
+              id: Date.now() + Math.random() + i,
+              x: e.clientX,
+              y: e.clientY,
+              size: Math.random() * 20 + 8, // 8px to 28px rocks
+              driftX: (Math.random() - 0.5) * 250, // wide drift
+              duration: Math.random() * 0.5 + 0.8, // fall speed
+              color: Math.random() > 0.6 ? "#2a2b36" : Math.random() > 0.3 ? "#1e1e24" : "#4c1d95" // dark stone & purple crystal chunks!
+            });
+          }
+          setDebris((prev) => [...prev, ...newDebris]);
+        }
+
+        return next;
+      });
       
       // Spawn expanding shockwave
       setShockwaves((prev) => [...prev, { id: Date.now() + Math.random(), x: e.clientX, y: e.clientY }]);
@@ -148,16 +211,16 @@ export function Preloader() {
       setParticles((prev) => [...prev.slice(-80), ...burstParticles]);
     };
 
-    const handleMouseUp = () => setIsClicked(false);
+    const handleMouseDownUpWrapper = () => setIsClicked(false);
 
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("mouseup", handleMouseDownUpWrapper);
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("mouseup", handleMouseDownUpWrapper);
     };
   }, [cursorX, cursorY, hoverType]);
 
@@ -325,8 +388,23 @@ export function Preloader() {
         >
           {/* The main screen background is now pure black */}
           
-          {/* Full Screen Apple Terminal Window */}
-          <div className="relative z-10 w-full h-full flex flex-col bg-[#020202] overflow-hidden cursor-none">
+           {/* Full Screen Apple Terminal Window - Shakes under click intensity */}
+          <motion.div 
+            animate={chargeLevel > 5 ? {
+              x: chargeLevel > 12 
+                ? [0, -3.5, 3.5, -1.8, 1.8, -3.5, 3.5, 0] 
+                : [0, -1.2, 1.2, -0.6, 0.6, -1.2, 1.2, 0],
+              y: chargeLevel > 12 
+                ? [0, 2.5, -2.5, 1.8, -1.8, 2.5, -2, 0] 
+                : [0, 0.8, -1, 0.6, -0.6, 1, -0.8, 0],
+            } : { x: 0, y: 0 }}
+            transition={chargeLevel > 5 ? {
+              repeat: Infinity,
+              duration: 0.12,
+              ease: "linear"
+            } : {}}
+            className="relative z-10 w-full h-full flex flex-col bg-[#020202] overflow-hidden cursor-none"
+          >
             
             {/* Background Animations INSIDE the Terminal */}
             <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
@@ -334,8 +412,8 @@ export function Preloader() {
                 squareSize={4}
                 gridGap={6}
                 color="#3b82f6"
-                maxOpacity={0.4}
-                flickerChance={0.15}
+                maxOpacity={0.4 + (chargeLevel / 20) * 0.4}
+                flickerChance={0.15 + (chargeLevel / 20) * 0.45}
               />
             </div>
             <div className="absolute inset-0 z-0 opacity-60 pointer-events-none">
@@ -343,7 +421,7 @@ export function Preloader() {
                 backgroundColor="transparent"
                 baseHue={260} // Adjusted hue to be more purple/blue to match "purple points"
                 particleCount={400}
-                baseSpeed={0.5 + (progress / 100) * 2}
+                baseSpeed={0.5 + (progress / 100) * 2 + (chargeLevel / 20) * 4}
               />
             </div>
 
@@ -385,13 +463,27 @@ export function Preloader() {
               <div className="flex flex-col items-center justify-center pointer-events-none w-full max-w-xl">
                 <motion.div
                   initial={{ opacity: 0, filter: "blur(12px)", scale: 0.9 }}
-                  animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
-                  transition={{ duration: 1.2, ease: "easeOut" }}
+                  animate={{ 
+                    opacity: 1, 
+                    filter: "blur(0px)", 
+                    scale: 1,
+                    skewX: chargeLevel > 12 ? [0, -6, 6, -3, 0] : 0,
+                    skewY: chargeLevel > 12 ? [0, 2, -2, 0] : 0
+                  }}
+                  transition={{ 
+                    opacity: { duration: 1.2, ease: "easeOut" },
+                    skewX: chargeLevel > 12 ? { repeat: Infinity, duration: 0.15, ease: "linear" } : {},
+                    skewY: chargeLevel > 12 ? { repeat: Infinity, duration: 0.2, ease: "linear" } : {}
+                  }}
                   onMouseEnter={() => setHoverType("title-name")}
                   onMouseLeave={() => setHoverType("none")}
                   className="text-[clamp(2rem,5.5vw,4.5rem)] font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 mb-6 sm:mb-8 text-center select-none cursor-none pointer-events-auto"
                   style={{
-                    textShadow: `0 0 ${progress * 0.4}px rgba(59, 130, 246, ${progress / 100})`
+                    textShadow: chargeLevel > 10
+                      ? `0 0 12px #ff007f, -3.5px -2px 0px #06b6d4, 3.5px 2px 0px #a855f7`
+                      : chargeLevel > 4
+                      ? `0 0 ${progress * 0.4 + 10}px rgba(59, 130, 246, 0.75)`
+                      : `0 0 ${progress * 0.4}px rgba(59, 130, 246, ${progress / 100})`
                   }}
                 >
                   Mostafa Yaser
@@ -463,6 +555,42 @@ export function Preloader() {
                 </motion.div>
               </div>
             </div>
+          </motion.div>
+
+          {/* Falling Debris / Shattered Chunks (Hidden on mobile) */}
+          <div className="pointer-events-none fixed inset-0 z-[99998] hidden md:block overflow-hidden">
+            {debris.map((rock) => (
+              <motion.div
+                key={rock.id}
+                initial={{
+                  x: rock.x,
+                  y: rock.y,
+                  rotate: 0,
+                  opacity: 1,
+                  scale: 1
+                }}
+                animate={{
+                  y: "110vh", // Gravity fall safely off-screen
+                  x: rock.x + rock.driftX,
+                  rotate: Math.random() > 0.5 ? 360 : -360,
+                  opacity: [1, 1, 0.4, 0]
+                }}
+                transition={{
+                  duration: rock.duration,
+                  ease: "easeIn" // Gravity acceleration curve
+                }}
+                onAnimationComplete={() => {
+                  setDebris((prev) => prev.filter((item) => item.id !== rock.id));
+                }}
+                className="absolute pointer-events-none border border-white/10 shadow-[0_0_12px_rgba(255,255,255,0.08)]"
+                style={{
+                  width: rock.size,
+                  height: rock.size,
+                  backgroundColor: rock.color,
+                  clipPath: "polygon(50% 0%, 90% 20%, 100% 60%, 75% 100%, 25% 100%, 0% 60%, 10% 20%)" // Decagon stone block!
+                }}
+              />
+            ))}
           </div>
 
           {/* Click Shockwave Ripples (Hidden on mobile) */}
