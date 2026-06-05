@@ -224,11 +224,38 @@ export function Preloader() {
     };
   }, [cursorX, cursorY, hoverType]);
 
-  // Click & Hold Sparkler Emitter (Welding spark generator)
+  // Click & Hold Sparkler Emitter (Welding spark generator & Continuous charging)
   useEffect(() => {
     if (!isClicked) return;
 
     const interval = setInterval(() => {
+      // 1. Continuously charge energy level during holds (+0.4 every 30ms)
+      updateCharge((prev) => {
+        const next = Math.min(20, prev + 0.4);
+        
+        // Spawn falling debris / shattered stones periodically during hold charging (Level 2+, next > 4)
+        if (next > 4 && Math.random() > 0.45) {
+          const x = cursorX.get();
+          const y = cursorY.get();
+          if (x >= 0) {
+            setDebris((prevDebris) => [
+              ...prevDebris,
+              {
+                id: Date.now() + Math.random(),
+                x,
+                y,
+                size: Math.random() * 18 + 8,
+                driftX: (Math.random() - 0.5) * 200,
+                duration: Math.random() * 0.5 + 0.8,
+                color: Math.random() > 0.6 ? "#2a2b36" : Math.random() > 0.3 ? "#1e1e24" : "#4c1d95"
+              }
+            ]);
+          }
+        }
+
+        return next;
+      });
+
       const x = cursorX.get();
       const y = cursorY.get();
       if (x < 0) return; // skip if off-screen
