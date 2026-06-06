@@ -26,6 +26,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-tweet": "^3.3.0",
+    "resend": "^6.12.4",
     "simplex-noise": "^4.0.3",
     "three": "^0.184.0",
     "three-globe": "^2.45.2"
