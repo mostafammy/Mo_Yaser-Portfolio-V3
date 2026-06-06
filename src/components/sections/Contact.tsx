@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input"
 import { FloatingDock } from "@/components/ui/floating-dock"
@@ -245,6 +245,9 @@ export function Contact() {
           />
         </motion.div>
 
+        {/* Signature */}
+        <Signature />
+
         {/* Footer */}
         <motion.p
           variants={fadeUp}
@@ -260,5 +263,76 @@ export function Contact() {
         </motion.p>
       </div>
     </section>
+  )
+}
+
+// ─── Animated SVG Signature ──────────────────────────────────────────────────
+
+function Signature() {
+  const pathRef = useRef<SVGPathElement>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [pathLen, setPathLen] = useState(600)
+  const [drawn, setDrawn] = useState(false)
+
+  useEffect(() => {
+    if (pathRef.current) setPathLen(pathRef.current.getTotalLength())
+  }, [])
+
+  useEffect(() => {
+    if (!wrapRef.current) return
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setDrawn(true) },
+      { threshold: 0.8 }
+    )
+    io.observe(wrapRef.current)
+    return () => io.disconnect()
+  }, [])
+
+  return (
+    <div ref={wrapRef} className="flex justify-center mt-10 mb-1" aria-hidden="true">
+      <svg
+        width="160"
+        height="76"
+        viewBox="0 0 160 76"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          ref={pathRef}
+          /* Cursive M.Y. with underline flourish */
+          d="
+            M 12,64 L 12,18
+            C 12,12 18,10 24,20
+            L 34,48
+            C 36,54 42,56 48,46
+            L 56,18
+            C 60,10 66,12 68,24
+            L 70,64
+
+            M 78,56 A 2.5,2.5 0 1,0 83,56 A 2.5,2.5 0 1,0 78,56
+
+            M 93,12
+            C 102,24 108,40 111,52
+            L 111,70
+            M 129,12
+            C 120,26 114,40 111,52
+
+            M 8,74
+            C 50,70 95,71 135,68
+          "
+          stroke="rgba(255,255,255,0.14)"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{
+            strokeDasharray: pathLen,
+            strokeDashoffset: drawn ? 0 : pathLen,
+            transition: drawn
+              ? "stroke-dashoffset 2.4s cubic-bezier(0.4, 0, 0.15, 1) 0.1s"
+              : "none",
+          }}
+        />
+      </svg>
+    </div>
   )
 }
