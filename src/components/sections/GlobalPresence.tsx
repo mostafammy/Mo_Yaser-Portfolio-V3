@@ -1,6 +1,7 @@
 "use client"
 
-import { motion } from "motion/react"
+import { useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
 import WorldMap from "@/components/ui/world-map"
 import { fadeUp } from "@/lib/motion"
 
@@ -36,15 +37,17 @@ const DOTS = [
 ]
 
 const CITIES = [
-  { name: "Cairo", flag: "🇪🇬", note: "Base" },
-  { name: "Copenhagen", flag: "🇩🇰", note: "IFMSA MWG" },
-  { name: "Espoo, Finland", flag: "🇫🇮", note: "Junction '25" },
-  { name: "Dubai", flag: "🇦🇪", note: "Dubai Chambers" },
-  { name: "Amman", flag: "🇯🇴", note: "SalamHack 2nd" },
-  { name: "Fort Mill, SC", flag: "🇺🇸", note: "IYNA" },
+  { name: "Cairo",         flag: "🇪🇬", note: "Base",           tooltip: "Home base · all operations start here" },
+  { name: "Copenhagen",    flag: "🇩🇰", note: "IFMSA MWG",      tooltip: "IFMSA Health Systems MWG · Jan–Apr 2026" },
+  { name: "Espoo, Finland",flag: "🇫🇮", note: "Junction '25",   tooltip: "Junction 2025 Hackathon · Nov 2025" },
+  { name: "Dubai",         flag: "🇦🇪", note: "Dubai Chambers", tooltip: "Create Apps Championship · 2025" },
+  { name: "Amman",         flag: "🇯🇴", note: "SalamHack 2nd",  tooltip: "SalamHack — 2nd Place Finalist · 2025" },
+  { name: "Fort Mill, SC", flag: "🇺🇸", note: "IYNA",           tooltip: "IYNA International Ideathon · 2025" },
 ]
 
 export function GlobalPresence() {
+  const [hoveredCity, setHoveredCity] = useState<string | null>(null)
+
   return (
     <section
       id="global-presence"
@@ -118,14 +121,36 @@ export function GlobalPresence() {
             <motion.div
               key={city.name}
               variants={fadeUp}
-              className="flex items-center gap-2 px-4 py-2 rounded-full
-                         bg-white/[0.04] border border-white/[0.07] backdrop-blur-sm"
+              onHoverStart={() => setHoveredCity(city.name)}
+              onHoverEnd={() => setHoveredCity(null)}
+              className="relative flex items-center gap-2 px-4 py-2 rounded-full cursor-default
+                         bg-white/[0.04] border border-white/[0.07] backdrop-blur-sm
+                         hover:bg-white/[0.07] hover:border-white/[0.12] transition-colors duration-150"
             >
               <span className="text-[15px] leading-none">{city.flag}</span>
-              <span className="text-[13px] text-white/60 font-medium">
-                {city.name}
-              </span>
+              <span className="text-[13px] text-white/60 font-medium">{city.name}</span>
               <span className="text-[11px] text-white/25">{city.note}</span>
+
+              <AnimatePresence>
+                {hoveredCity === city.name && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6, scale: 0.94 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 4, scale: 0.94 }}
+                    transition={{ duration: 0.14, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 z-50
+                               px-3 py-1.5 rounded-xl whitespace-nowrap pointer-events-none
+                               bg-[#1c1c1c] border border-white/[0.08]
+                               text-[12px] text-white/55
+                               shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
+                  >
+                    {city.tooltip}
+                    {/* Caret */}
+                    <span className="absolute top-full left-1/2 -translate-x-1/2 -mt-px
+                                     border-[5px] border-transparent border-t-[#1c1c1c]" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           ))}
         </motion.div>
