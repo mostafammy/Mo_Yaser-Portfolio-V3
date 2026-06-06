@@ -37,8 +37,13 @@ export default function WorldMap({
   });
 
   const projectPoint = (lat: number, lng: number) => {
-    const x = (lng + 180) * (800 / 360);
-    const y = (90 - lat) * (400 / 180);
+    // x: equirectangular and Mercator are identical for longitude
+    const x = (lng + 180) / 360 * 800;
+    // y: DottedMap uses Mercator projection. Constants derived from actual
+    // DottedMap pin positions to align the overlay exactly with the background.
+    // Y_MAX ≈ Mercator metres at ~71 °N, Y_RANGE spans ~71 °N → ~56 °S.
+    const mercY = Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI / 180) / 2)) * 6378137;
+    const y = (11_473_000 - mercY) / 19_096_000 * 400;
     return { x, y };
   };
 
