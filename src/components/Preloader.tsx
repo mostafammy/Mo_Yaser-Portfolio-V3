@@ -18,9 +18,10 @@ const LOADING_MESSAGES = [
 
 export function Preloader() {
   const [loading, setLoading] = useState(true);
+  const [prefersReduced, setPrefersReduced] = useState(false);
   const [progress, setProgress] = useState(0);
   const [messageIndex, setMessageIndex] = useState(0);
-  const [messagesLog, setMessagesLog] = useState<string[]>([]);
+  const [messagesLog, setMessagesLog] = useState<string[]>([LOADING_MESSAGES[0]]);
   const [hoverType, setHoverType] = useState<"none" | "window-controls" | "title-name" | "loader-ring" | "terminal-text">("none");
   const [chargeLevel, setChargeLevel] = useState(0);
   const chargeLevelRef = useRef(0);
@@ -34,6 +35,15 @@ export function Preloader() {
   };
 
   useEffect(() => {
+    // Skip entirely for users who prefer reduced motion
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const id = setTimeout(() => {
+        setPrefersReduced(true);
+        setLoading(false);
+      }, 0);
+      return () => clearTimeout(id);
+    }
+
     // Lock scroll and ensure we start at the top
     document.body.style.overflow = "hidden";
     window.scrollTo(0, 0);
@@ -77,9 +87,6 @@ export function Preloader() {
       }
     }, intervalTime);
 
-    // Initial log message
-    setMessagesLog([LOADING_MESSAGES[0]]);
-
     return () => {
       clearInterval(interval);
       document.body.style.overflow = "";
@@ -92,16 +99,19 @@ export function Preloader() {
         <motion.div
           key="preloader"
           initial={{ opacity: 1 }}
-          exit={{ 
+          exit={prefersReduced ? {
+            opacity: 0,
+            transition: { duration: 0.25 },
+          } : {
             opacity: [1, 1, 0],
             scale: [1, 0.98, 12],
             filter: ["blur(0px)", "blur(0px)", "blur(40px) brightness(4) contrast(2)"],
             rotate: [0, -1, 5],
-            transition: { 
-              duration: 1.2, 
-              ease: [0.8, 0, 0.1, 1], // Cinematic steep bezier
-              times: [0, 0.3, 1] 
-            } 
+            transition: {
+              duration: 1.2,
+              ease: [0.8, 0, 0.1, 1],
+              times: [0, 0.3, 1]
+            }
           }}
           className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#050505] overflow-hidden select-none cursor-none"
         >
