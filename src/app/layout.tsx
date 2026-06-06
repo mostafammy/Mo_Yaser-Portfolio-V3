@@ -15,10 +15,67 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://mostafayaser.earth"
+
 export const metadata: Metadata = {
-  title: "Mostafa Yaser — Portfolio",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Mostafa Yaser — Full Stack SWE & Global Health Technologist",
+    template: "%s — Mostafa Yaser",
+  },
   description:
-    "A showcase of work, case studies, and creative projects by Mostafa Yaser.",
+    "Full Stack Software Engineer and Global Health Technologist building at the intersection of technology and human impact. Based in Cairo, Egypt.",
+  keywords: [
+    "Mostafa Yaser",
+    "Full Stack Engineer",
+    "Global Health",
+    "Software Engineer",
+    "React",
+    "Next.js",
+    "Cairo",
+    "Egypt",
+    "Portfolio",
+    "IFMSA",
+    "ScholarX",
+    "McKinsey",
+  ],
+  authors: [{ name: "Mostafa Yaser", url: SITE_URL }],
+  creator: "Mostafa Yaser",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: SITE_URL,
+    siteName: "Mostafa Yaser",
+    title: "Mostafa Yaser — Full Stack SWE & Global Health Technologist",
+    description:
+      "Full Stack SWE and Global Health Technologist. Building at the intersection of technology and human impact.",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Mostafa Yaser — Full Stack SWE & Global Health Technologist",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mostafa Yaser — Full Stack SWE & Global Health Technologist",
+    description:
+      "Full Stack SWE & Global Health Technologist. Building at the intersection of tech and human impact.",
+    images: ["/opengraph-image"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({
