@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input"
 import { FloatingDock } from "@/components/ui/floating-dock"
+import { StatusBadge } from "@/components/ui/status-badge"
 import { fadeUp } from "@/lib/motion"
 import confetti from "canvas-confetti"
 
@@ -125,6 +126,17 @@ export function Contact() {
             / contact
           </span>
           <span className="w-5 h-px bg-blue-500/60" />
+        </motion.div>
+
+        {/* Status */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="flex justify-center mb-7"
+        >
+          <StatusBadge />
         </motion.div>
 
         {/* Headline */}
