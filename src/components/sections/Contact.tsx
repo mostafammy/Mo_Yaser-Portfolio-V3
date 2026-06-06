@@ -1,11 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "motion/react"
+import { motion, AnimatePresence } from "motion/react"
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input"
 import { FloatingDock } from "@/components/ui/floating-dock"
 import { fadeUp } from "@/lib/motion"
 import confetti from "canvas-confetti"
+
+const MAX_CHARS = 200
 
 const PLACEHOLDERS = [
   "What are you building?",
@@ -62,7 +64,39 @@ const SOCIAL_LINKS = [
 ]
 
 export function Contact() {
-  const [submitted, setSubmitted] = useState(false)
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+  const [message, setMessage] = useState("")
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMessage(e.target.value)
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!message.trim() || status === "loading") return
+
+    setStatus("loading")
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: message.trim() }),
+      })
+      if (res.ok) {
+        setStatus("success")
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ["#3b82f6", "#8b5cf6", "#06b6d4"],
+        })
+      } else {
+        setStatus("error")
+      }
+    } catch {
+      setStatus("error")
+    }
+  }
 
   return (
     <section
@@ -103,7 +137,7 @@ export function Contact() {
           className="text-[clamp(36px,7vw,68px)] font-semibold tracking-[-0.03em]
                      text-white mb-4 leading-[1.0]"
         >
-          Let's build something
+          Let&apos;s build something
           <br />
           <span className="text-white/35">that matters.</span>
         </motion.h2>
@@ -116,8 +150,8 @@ export function Contact() {
           viewport={{ once: true }}
           className="text-[15px] text-white/35 mb-12 max-w-md mx-auto leading-relaxed"
         >
-          Whether it's a product, a program, or a collaboration — if it's
-          meaningful, I'm interested.
+          Whether it&apos;s a product, a program, or a collaboration — if it&apos;s
+          meaningful, I&apos;m interested.
         </motion.p>
 
         {/* Input */}
@@ -129,30 +163,70 @@ export function Contact() {
           viewport={{ once: true }}
           className="mb-14"
         >
-          {submitted ? (
-            <motion.p
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="py-4 text-white/45 text-sm"
-            >
-              Message received — I'll be in touch.
-            </motion.p>
-          ) : (
-            <PlaceholdersAndVanishInput
-              placeholders={PLACEHOLDERS}
-              onChange={() => {}}
-              onSubmit={(e) => {
-                e.preventDefault()
-                setSubmitted(true)
-                confetti({
-                  particleCount: 100,
-                  spread: 70,
-                  origin: { y: 0.6 },
-                  colors: ["#3b82f6", "#8b5cf6", "#06b6d4"],
-                })
-              }}
-            />
-          )}
+          <AnimatePresence mode="wait">
+            {status === "success" ? (
+              <motion.p
+                key="success"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="py-4 text-white/45 text-sm"
+              >
+                Message received — I&apos;ll be in touch.
+              </motion.p>
+            ) : (
+              <motion.div key="form">
+                <PlaceholdersAndVanishInput
+                  placeholders={PLACEHOLDERS}
+                  onChange={handleChange}
+                  onSubmit={handleSubmit}
+                />
+                <div className="mt-2.5 flex items-center justify-between px-1 h-4">
+                  <AnimatePresence mode="wait">
+                    {status === "error" && (
+                      <motion.span
+                        key="error"
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="text-[11px] text-red-400/60"
+                      >
+                        Couldn&apos;t send — try emailing me directly.
+                      </motion.span>
+                    )}
+                    {status === "loading" && (
+                      <motion.span
+                        key="loading"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="text-[11px] text-white/25"
+                      >
+                        Sending…
+                      </motion.span>
+                    )}
+                    {status === "idle" && <span key="idle" />}
+                  </AnimatePresence>
+                  <AnimatePresence>
+                    {message.length > 0 && (
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className={[
+                          "text-[11px] font-mono ml-auto tabular-nums",
+                          message.length > MAX_CHARS * 0.85
+                            ? "text-amber-400/50"
+                            : "text-white/15",
+                        ].join(" ")}
+                      >
+                        {message.length}/{MAX_CHARS}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         {/* Social links */}
@@ -181,6 +255,8 @@ export function Contact() {
           className="mt-16 text-[11px] text-white/15 tracking-wide"
         >
           Mostafa Yaser · Cairo, Egypt · {new Date().getFullYear()}
+          <span className="mx-2.5 opacity-40">·</span>
+          <span className="font-mono tracking-widest">v0.1.0</span>
         </motion.p>
       </div>
     </section>
