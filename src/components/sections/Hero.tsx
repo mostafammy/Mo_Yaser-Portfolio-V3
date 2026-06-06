@@ -72,6 +72,16 @@ export function Hero() {
   const heroRef = useRef<HTMLElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const [typingVanished, setTypingVanished] = useState(false)
+  const [isReturn, setIsReturn] = useState(false)
+
+  useEffect(() => {
+    const key = "mye_visited"
+    if (localStorage.getItem(key)) {
+      const id = setTimeout(() => setIsReturn(true), 0)
+      return () => clearTimeout(id)
+    }
+    localStorage.setItem(key, "1")
+  }, [])
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -150,9 +160,20 @@ export function Hero() {
           className="flex items-center gap-3 mb-10"
         >
           <span className="w-6 h-px bg-blue-500/50" />
-          <span className="text-[11px] font-medium tracking-[0.25em] text-blue-400/70 uppercase">
-            Full Stack SWE · Global Impact
-          </span>
+          {isReturn ? (
+            <motion.span
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="text-[11px] font-medium tracking-[0.25em] text-blue-400/70 uppercase"
+            >
+              Welcome back.
+            </motion.span>
+          ) : (
+            <span className="text-[11px] font-medium tracking-[0.25em] text-blue-400/70 uppercase">
+              Full Stack SWE · Global Impact
+            </span>
+          )}
           <span className="w-6 h-px bg-blue-500/50" />
         </motion.div>
 
