@@ -102,8 +102,9 @@ const COMMANDS: Command[] = [
   { id: "link-github",   label: "Open GitHub",    description: "github.com/mostafammy",           group: "Connect", icon: Icon.github,   action: () => window.open("https://github.com/mostafammy", "_blank") },
   { id: "link-linkedin", label: "Open LinkedIn",  description: "linkedin.com/in/mostafayaser",     group: "Connect", icon: Icon.linkedin, action: () => window.open("https://www.linkedin.com/in/mostafayaser/", "_blank") },
   { id: "link-email",    label: "Send Email",     description: "mostafa.yaser.developer@gmail.com", group: "Connect", icon: Icon.mail,     action: () => { window.location.href = "mailto:mostafa.yaser.developer@gmail.com" } },
-  { id: "action-copy-email", label: "Copy Email Address", group: "Actions", icon: Icon.copy, action: () => navigator.clipboard.writeText("mostafa.yaser.developer@gmail.com"), keywords: ["clipboard"] },
-  { id: "action-source",     label: "View Source on GitHub", group: "Actions", icon: Icon.code, action: () => window.open("https://github.com/mostafammy/Mo_Yaser-Portfolio-V3", "_blank"), keywords: ["repo", "code", "open source"] },
+  { id: "action-resume",     label: "View Resume",          group: "Actions", icon: Icon.user,   action: () => window.open("/resume", "_blank"),                                                     keywords: ["cv", "experience", "download"] },
+  { id: "action-copy-email", label: "Copy Email Address",   group: "Actions", icon: Icon.copy,  action: () => navigator.clipboard.writeText("mostafa.yaser.developer@gmail.com"),                    keywords: ["clipboard"] },
+  { id: "action-source",     label: "View Source on GitHub",group: "Actions", icon: Icon.code,  action: () => window.open("https://github.com/mostafammy/Mo_Yaser-Portfolio-V3", "_blank"),          keywords: ["repo", "code", "open source"] },
 ]
 
 const GROUPS: Array<Command["group"]> = ["Navigate", "Connect", "Actions"]
