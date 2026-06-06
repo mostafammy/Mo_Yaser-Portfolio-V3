@@ -1,13 +1,50 @@
 "use client"
 
 import { useRef, useEffect } from "react"
-import { motion } from "motion/react"
+import { motion, useMotionValue, useSpring, useTransform } from "motion/react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { fadeUp, scaleIn } from "@/lib/motion"
 import { GlowingEffect } from "@/components/ui/glowing-effect"
 
 gsap.registerPlugin(ScrollTrigger)
+
+function TiltCard({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
+  const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [5, -5]), {
+    stiffness: 300,
+    damping: 28,
+  })
+  const rotateY = useSpring(useTransform(mx, [-0.5, 0.5], [-5, 5]), {
+    stiffness: 300,
+    damping: 28,
+  })
+
+  return (
+    <motion.div
+      style={{ rotateX, rotateY, transformPerspective: 900 }}
+      onMouseMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect()
+        mx.set((e.clientX - r.left) / r.width - 0.5)
+        my.set((e.clientY - r.top) / r.height - 0.5)
+      }}
+      onMouseLeave={() => {
+        mx.set(0)
+        my.set(0)
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
+}
 
 const CARDS = [
   {
@@ -163,42 +200,43 @@ export function About() {
                 whileInView="visible"
                 custom={i}
                 viewport={{ once: true, margin: "-60px" }}
-                className="group relative p-6 rounded-2xl
-                           bg-white/[0.025] border border-white/[0.06]
-                           transition-all duration-300 cursor-default"
               >
-                <GlowingEffect
-                  spread={40}
-                  glow={true}
-                  disabled={false}
-                  proximity={64}
-                  inactiveZone={0.01}
-                />
-                <div className="relative z-10 flex items-start gap-4">
-                  <span className="text-xl text-blue-500/55 mt-0.5 flex-shrink-0 font-mono">
-                    {card.icon}
-                  </span>
-                  <div className="space-y-2 min-w-0">
-                    <h3 className="text-[15px] font-semibold text-white/80">
-                      {card.title}
-                    </h3>
-                    <p className="text-sm text-white/40 leading-relaxed">
-                      {card.body}
-                    </p>
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {card.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2.5 py-0.5 text-[11px] rounded-full
-                                     bg-white/[0.04] border border-white/[0.08]
-                                     text-white/40 tracking-wide"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                <TiltCard className="group relative p-6 rounded-2xl
+                                     bg-white/[0.025] border border-white/[0.06]
+                                     transition-colors duration-300 cursor-default">
+                  <GlowingEffect
+                    spread={40}
+                    glow={true}
+                    disabled={false}
+                    proximity={64}
+                    inactiveZone={0.01}
+                  />
+                  <div className="relative z-10 flex items-start gap-4">
+                    <span className="text-xl text-blue-500/55 mt-0.5 flex-shrink-0 font-mono">
+                      {card.icon}
+                    </span>
+                    <div className="space-y-2 min-w-0">
+                      <h3 className="text-[15px] font-semibold text-white/80">
+                        {card.title}
+                      </h3>
+                      <p className="text-sm text-white/40 leading-relaxed">
+                        {card.body}
+                      </p>
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {card.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-2.5 py-0.5 text-[11px] rounded-full
+                                       bg-white/[0.04] border border-white/[0.08]
+                                       text-white/40 tracking-wide"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
+                </TiltCard>
               </motion.div>
             ))}
           </div>
