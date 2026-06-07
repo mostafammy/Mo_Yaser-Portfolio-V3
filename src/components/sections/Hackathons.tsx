@@ -1,7 +1,7 @@
 "use client"
 
-import { useRef } from "react"
-import { motion } from "motion/react"
+import { useRef, useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
 import { CometCard } from "@/components/ui/comet-card"
 import { hackathons } from "@/data/hackathons"
 import { fadeUp, scaleIn } from "@/lib/motion"
@@ -92,6 +92,7 @@ function HackathonCard({
   index: number
 }) {
   const cardRef = useRef<HTMLDivElement>(null)
+  const [expanded, setExpanded] = useState(false)
 
   const fireConfetti = () => {
     if (item.result !== "Finalist" && item.result !== "2nd Place") return
@@ -118,39 +119,39 @@ function HackathonCard({
       custom={index}
       onMouseEnter={fireConfetti}
     >
-      <CometCard className="h-full" rotateDepth={10} translateDepth={10}>
+      <CometCard className="h-full" rotateDepth={expanded ? 0 : 10} translateDepth={expanded ? 0 : 10}>
         <div
-          className={`p-5 rounded-2xl h-full min-h-[192px] flex flex-col justify-between ${
-            item.result === "2nd Place"
-              ? "bg-amber-500/[0.06] border border-amber-400/30"
-              : "bg-white/[0.03] border border-white/[0.07]"
-          }`}
+          className={`p-5 rounded-2xl h-full flex flex-col justify-between cursor-pointer
+            transition-colors duration-200 ${
+              item.result === "2nd Place"
+                ? "bg-amber-500/[0.06] border border-amber-400/30 hover:bg-amber-500/[0.09]"
+                : "bg-white/[0.03] border border-white/[0.07] hover:bg-white/[0.05]"
+            }`}
+          onClick={() => setExpanded((prev) => !prev)}
         >
           {/* Top */}
           <div>
             <div className="flex items-start justify-between gap-2 mb-4">
               <span className="text-[26px] leading-none">{item.badge}</span>
-              {item.result === "2nd Place" ? (
-                <span
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
-                             bg-amber-400/20 border border-amber-400/40
-                             text-[11px] font-bold text-amber-300 tracking-wide"
-                >
-                  ★★ 2nd Place
-                </span>
-              ) : item.result === "Finalist" ? (
-                <span
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full
-                             bg-amber-500/15 border border-amber-500/25
-                             text-[11px] font-semibold text-amber-400"
-                >
-                  ★ Finalist
-                </span>
-              ) : (
-                <span className="text-[11px] text-white/25 font-medium mt-0.5">
-                  {item.result}
-                </span>
-              )}
+              <div className="flex items-center gap-1.5">
+                {item.result === "2nd Place" ? (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
+                                   bg-amber-400/20 border border-amber-400/40
+                                   text-[11px] font-bold text-amber-300 tracking-wide">
+                    ★★ 2nd Place
+                  </span>
+                ) : item.result === "Finalist" ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full
+                                   bg-amber-500/15 border border-amber-500/25
+                                   text-[11px] font-semibold text-amber-400">
+                    ★ Finalist
+                  </span>
+                ) : (
+                  <span className="text-[11px] text-white/25 font-medium mt-0.5">
+                    {item.result}
+                  </span>
+                )}
+              </div>
             </div>
 
             <h3 className="text-[14px] font-semibold text-white/75 leading-snug mb-1.5">
@@ -159,17 +160,67 @@ function HackathonCard({
             <p className="text-[12px] text-white/35 leading-snug line-clamp-2">
               {item.org}
             </p>
+
+            {/* Expanded content */}
+            <AnimatePresence initial={false}>
+              {expanded && (
+                <motion.div
+                  key="expanded"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="pt-3 pb-1 space-y-2.5">
+                    {item.description && (
+                      <p className="text-[12px] text-white/45 leading-relaxed">
+                        {item.description}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-1.5 text-[11px] text-white/25">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                           strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
+                      Team of {item.teamSize ?? "—"}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] text-white/25">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                           strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                        <circle cx="12" cy="10" r="3" />
+                      </svg>
+                      {item.location}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Bottom */}
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/[0.05]">
             <span className="text-[11px] text-white/20">{item.period}</span>
-            <span
-              className="px-2 py-0.5 text-[10px] rounded-full
-                         bg-white/[0.04] border border-white/[0.08] text-white/30"
-            >
-              {item.category}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 text-[10px] rounded-full
+                               bg-white/[0.04] border border-white/[0.08] text-white/30">
+                {item.category}
+              </span>
+              <motion.span
+                animate={{ rotate: expanded ? 180 : 0 }}
+                transition={{ duration: 0.22 }}
+                className="text-white/20"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                     strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </motion.span>
+            </div>
           </div>
         </div>
       </CometCard>
