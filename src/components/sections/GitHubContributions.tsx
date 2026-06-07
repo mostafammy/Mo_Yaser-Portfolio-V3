@@ -13,9 +13,11 @@ gsap.registerPlugin(ScrollTrigger)
 type Day = { date: string; contributionCount: number }
 type Week = { contributionDays: Day[] }
 
+type LangItem = { lang: string; count: number }
+
 type FetchState =
   | { status: "loading" }
-  | { status: "loaded"; total: number; weeks: Week[] }
+  | { status: "loaded"; total: number; weeks: Week[]; currentStreak: number; longestStreak: number; languages: LangItem[] }
   | { status: "unconfigured" }
   | { status: "error" }
 
@@ -179,7 +181,14 @@ export function GitHubContributions() {
       .then((d) => {
         if (d.unconfigured) return setState({ status: "unconfigured" })
         if (d.error) return setState({ status: "error" })
-        setState({ status: "loaded", total: d.total, weeks: d.weeks ?? [] })
+        setState({
+          status: "loaded",
+          total: d.total,
+          weeks: d.weeks ?? [],
+          currentStreak: d.currentStreak ?? 0,
+          longestStreak: d.longestStreak ?? 0,
+          languages: d.languages ?? [],
+        })
       })
       .catch(() => setState({ status: "error" }))
   }, [])
@@ -321,6 +330,96 @@ export function GitHubContributions() {
             </span>
           )}
         </motion.div>
+
+        {/* ── Streak stats ─── */}
+        {state.status === "loaded" && (state.currentStreak > 0 || state.longestStreak > 0) && (
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            custom={3.5}
+            viewport={{ once: true }}
+            className="mb-8 grid grid-cols-2 sm:grid-cols-4 gap-3"
+          >
+            {[
+              { label: "Current streak", value: `${state.currentStreak}d` },
+              { label: "Longest streak",  value: `${state.longestStreak}d` },
+              { label: "Total 2026",      value: state.total.toLocaleString() },
+              { label: "Avg / week",      value: state.weeks.length > 0
+                  ? Math.round(state.total / Math.max(1, state.weeks.length)).toString()
+                  : "—" },
+            ].map(({ label, value }) => (
+              <div
+                key={label}
+                className="px-4 py-3.5 rounded-xl bg-white/[0.03] border border-white/[0.05]"
+              >
+                <p className="text-[22px] font-semibold text-white/85 tabular-nums leading-none mb-1">
+                  {value}
+                </p>
+                <p className="text-[11px] text-white/28 tracking-wide">{label}</p>
+              </div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* ── Language bar ─── */}
+        {state.status === "loaded" && state.languages.length > 0 && (
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            custom={3.8}
+            viewport={{ once: true }}
+            className="mb-8"
+          >
+            <p className="text-[10px] tracking-[0.18em] text-white/22 uppercase font-medium mb-3">
+              Top languages · public repos
+            </p>
+            <div className="flex h-2.5 rounded-full overflow-hidden gap-px">
+              {(() => {
+                const total = state.languages.reduce((s, l) => s + l.count, 0)
+                const LANG_COLORS: Record<string, string> = {
+                  TypeScript: "#3178c6", JavaScript: "#f1e05a", Python: "#3572A5",
+                  "C++": "#f34b7d", Rust: "#dea584", Go: "#00ADD8",
+                  CSS: "#563d7c", HTML: "#e34c26", Shell: "#89e051",
+                }
+                return state.languages.map((l) => (
+                  <div
+                    key={l.lang}
+                    title={`${l.lang} · ${Math.round((l.count / total) * 100)}%`}
+                    style={{
+                      width: `${(l.count / total) * 100}%`,
+                      background: LANG_COLORS[l.lang] ?? "#8b8b8b",
+                      opacity: 0.75,
+                    }}
+                  />
+                ))
+              })()}
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2.5">
+              {(() => {
+                const total = state.languages.reduce((s, l) => s + l.count, 0)
+                const LANG_COLORS: Record<string, string> = {
+                  TypeScript: "#3178c6", JavaScript: "#f1e05a", Python: "#3572A5",
+                  "C++": "#f34b7d", Rust: "#dea584", Go: "#00ADD8",
+                  CSS: "#563d7c", HTML: "#e34c26", Shell: "#89e051",
+                }
+                return state.languages.map((l) => (
+                  <div key={l.lang} className="flex items-center gap-1.5">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{ background: LANG_COLORS[l.lang] ?? "#8b8b8b", opacity: 0.75 }}
+                    />
+                    <span className="text-[11px] text-white/35">{l.lang}</span>
+                    <span className="text-[11px] text-white/18">
+                      {Math.round((l.count / total) * 100)}%
+                    </span>
+                  </div>
+                ))
+              })()}
+            </div>
+          </motion.div>
+        )}
 
         {/* ── Heatmap card ─── */}
         <motion.div
