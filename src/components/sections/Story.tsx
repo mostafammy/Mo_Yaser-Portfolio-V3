@@ -22,6 +22,7 @@ type Chapter = {
   icon: ReactNode
   title: string
   narrative: string
+  pullQuote?: string
   tags: string[]
   bridge: string | null  // label shown in the gap AFTER this chapter
 }
@@ -44,6 +45,7 @@ const CHAPTERS: Chapter[] = [
     title: "It all started with confusion.",
     narrative:
       "In IT class, my teacher showed us an HTML form — action=\"index.php\". I stopped him mid-sentence: are there files with a .php extension? What do they do differently? He said we didn't have enough time. Class ended. I went home with more questions than I'd ever had about anything, and I didn't sleep until I had at least some answers. That night changed everything.",
+    pullQuote: "I went home with more questions than I'd ever had about anything.",
     tags: ["Origin Story", "Cairo, Egypt"],
     bridge: "two years of wondering",
   },
@@ -64,6 +66,7 @@ const CHAPTERS: Chapter[] = [
     title: "I found the intersection.",
     narrative:
       "IFMSA opened a door I didn't know existed. Medical students, across 130+ countries, coordinating global health programs through spreadsheets and email chains. My two worlds — code and impact — were pointing at the same problem. I stopped asking what I wanted to build. I started asking what needed to be built.",
+    pullQuote: "I stopped asking what I wanted to build. I started asking what needed to be built.",
     tags: ["IFMSA-Egypt", "SCOME Coordinator", "Global Health"],
     bridge: "one year of testing limits",
   },
@@ -104,6 +107,7 @@ const CHAPTERS: Chapter[] = [
     title: "The confusion became a compass.",
     narrative:
       "Everything I build traces back to that IT classroom in 2018 — a question no one had time to answer, and a refusal to let it go. Whether it's building infrastructure for IFMSA, shipping a prototype in 48 hours, or architecting a production system: it always starts the same way. A question, an open browser tab, and the same restlessness that kept me up that first night.",
+    pullQuote: "A question no one had time to answer, and a refusal to let it go.",
     tags: ["ScholarX", "IFMSA", "Enactus", "Cairo, Egypt", "Open to Collaborate"],
     bridge: null,
   },
@@ -226,6 +230,24 @@ function ChapterBlock({
           {chapter.narrative}
         </motion.p>
 
+        {/* Pull-quote */}
+        {chapter.pullQuote && (
+          <motion.blockquote
+            initial={{ opacity: 0, x: -12 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.32 }}
+            className="mt-6 pl-4 border-l-2 py-0.5"
+            style={{ borderColor: chapter.accent + "55" }}
+          >
+            <p
+              className="text-[16px] lg:text-[18px] font-medium leading-[1.55] italic"
+              style={{ color: chapter.accent + "cc" }}
+            >
+              &ldquo;{chapter.pullQuote}&rdquo;
+            </p>
+          </motion.blockquote>
+        )}
+
         {/* Tags */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -346,7 +368,7 @@ export function Story() {
             className="text-[16px] text-white/30 max-w-md leading-relaxed"
           >
             Nine years. Eight chapters. One question that{" "}
-            hasn't changed.
+            hasn&apos;t changed.
           </motion.p>
         </div>
 
