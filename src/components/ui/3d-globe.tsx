@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useMemo, useState, useCallback, Suspense } from "react";
+import React, { useRef, useMemo, useState, useCallback, useEffect, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Html, useTexture } from "@react-three/drei";
 import * as THREE from "three";
@@ -121,7 +121,6 @@ interface MarkerProps {
 function Marker({
   marker,
   radius,
-  defaultSize,
   onClick,
   onHover,
 }: MarkerProps) {
@@ -273,7 +272,8 @@ function RotatingGlobe({
   ]);
 
   // Configure textures
-  useMemo(() => {
+  /* eslint-disable react-hooks/immutability */
+  useEffect(() => {
     if (earthTexture) {
       earthTexture.colorSpace = THREE.SRGBColorSpace;
       earthTexture.anisotropy = 16;
@@ -282,6 +282,7 @@ function RotatingGlobe({
       bumpTexture.anisotropy = 8;
     }
   }, [earthTexture, bumpTexture]);
+  /* eslint-enable react-hooks/immutability */
 
   // Create geometries
   const geometry = useMemo(() => {

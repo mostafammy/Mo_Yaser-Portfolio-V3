@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { motion, AnimatePresence } from "motion/react"
+import { useLenis } from "@/components/lenis-provider"
 
 const SECTIONS = [
   { key: "1", label: "Hero",            id: "hero" },
@@ -13,12 +14,17 @@ const SECTIONS = [
   { key: "7", label: "Contact",         id: "contact" },
 ]
 
-function scrollToSection(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
-}
-
 export function KeyboardNav() {
   const [open, setOpen] = useState(false)
+  const lenis = useLenis()
+
+  const scrollToSection = useCallback((id: string) => {
+    if (lenis) {
+      lenis.scrollTo(`#${id}`)
+    } else {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
+  }, [lenis])
 
   useEffect(() => {
     function handler(e: KeyboardEvent) {
@@ -47,7 +53,7 @@ export function KeyboardNav() {
     }
     window.addEventListener("keydown", handler)
     return () => window.removeEventListener("keydown", handler)
-  }, [])
+  }, [scrollToSection])
 
   return (
     <>

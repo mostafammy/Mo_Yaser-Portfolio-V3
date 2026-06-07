@@ -141,7 +141,6 @@ export function Text3DFlip({
   staggerFrom = "first",
   transition = DEFAULT_TRANSITION,
   rotateDirection = "right",
-  ...props
 }: Text3DFlipProps) {
   const isAnimatingRef = useRef(false)
   const isMountedRef = useRef(false)

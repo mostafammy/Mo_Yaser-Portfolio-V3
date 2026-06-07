@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { AnimatePresence, motion, MotionConfig } from "motion/react"
 import { ChevronDownIcon, X } from "lucide-react"
 
@@ -23,18 +23,12 @@ type SelectProps = {
 const Select = ({ data, defaultValue }: SelectProps) => {
   const [open, setOpen] = React.useState(false)
   const ref = React.useRef<HTMLDivElement>(null)
-  const [selected, setSelected] = useState<TSelectData | undefined>(undefined)
-
-  useEffect(() => {
+  const [selected, setSelected] = useState<TSelectData | undefined>(() => {
     if (defaultValue) {
-      const item = data?.find((i) => i.value === defaultValue)
-      if (item) {
-        setSelected(item)
-      }
-    } else {
-      setSelected(data?.[0])
+      return data?.find((i) => i.value === defaultValue) ?? data?.[0]
     }
-  }, [defaultValue])
+    return data?.[0]
+  })
 
   const onSelect = (value: string) => {
     const item = data?.find((i) => i.value === value)

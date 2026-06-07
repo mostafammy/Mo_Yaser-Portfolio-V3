@@ -49,17 +49,6 @@ function getSystemTheme(): Theme {
     : "light";
 }
 
-function getStoredTheme(): Theme | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === "light" || stored === "dark") return stored;
-  } catch {
-    return null;
-  }
-  return null;
-}
-
 function applyThemeClass(theme: Theme) {
   const root = document.documentElement;
   root.classList.toggle("dark", theme === "dark");
@@ -86,10 +75,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   /* --- Hydrate from storage / system on mount --- */
   useEffect(() => {
-    const stored = getStoredTheme();
-    const initial = stored ?? getSystemTheme();
-    setThemeState(initial);
-    applyThemeClass(initial);
+    applyThemeClass(resolvedTheme);
   }, []);
 
   /* --- Listen for system preference changes when no explicit theme is set --- */

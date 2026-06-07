@@ -91,7 +91,6 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
     scrambleCharsRef.current = initial.split("");
     startTimeRef.current = performance.now();
     lastFlipTimeRef.current = startTimeRef.current;
-    setRevealCount(0);
 
     let isCancelled = false;
 
@@ -141,6 +140,8 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
 
   if (!text) return null;
 
+  const currentScrambleChars = scrambleCharsRef.current;
+
   return (
     <motion.span
       ref={ref}
@@ -148,13 +149,14 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
       aria-label={text}
       role="text"
     >
+      {/* eslint-disable-next-line react-hooks/refs */}
       {text.split("").map((char, index) => {
         const isRevealed = index < revealCount;
         const displayChar = isRevealed
           ? char
           : char === " "
             ? " "
-            : (scrambleCharsRef.current[index] ??
+            : (currentScrambleChars[index] ??
               generateRandomCharacter(charset));
 
         return (

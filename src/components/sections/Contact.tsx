@@ -271,7 +271,7 @@ export function Contact() {
         >
           Mostafa Yaser · Cairo, Egypt · {new Date().getFullYear()}
           <span className="mx-2.5 opacity-40">·</span>
-          <span className="font-mono tracking-widest">v0.1.0</span>
+          <span className="font-mono tracking-widest">v{process.env.NEXT_PUBLIC_APP_VERSION}</span>
         </motion.p>
       </div>
     </section>

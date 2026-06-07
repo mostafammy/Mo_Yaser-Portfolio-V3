@@ -461,24 +461,10 @@ const KeyboardProvider = ({
 
 const KeystrokePreview = () => {
   const { lastPressedKey, pressedKeys } = useKeyboardSound();
-  const [displayKey, setDisplayKey] = useState<string | null>(null);
-  const [animationKey, setAnimationKey] = useState(0);
 
-  useEffect(() => {
-    if (lastPressedKey) {
-      if (
-        lastPressedKey === "Space" ||
-        lastPressedKey === "ShiftLeft" ||
-        lastPressedKey === "ShiftRight"
-      ) {
-        setDisplayKey(null);
-        return;
-      }
-
-      setDisplayKey(getKeyDisplayLabel(lastPressedKey));
-      setAnimationKey((prev) => prev + 1);
-    }
-  }, [lastPressedKey]);
+  const displayKey = lastPressedKey && !["Space", "ShiftLeft", "ShiftRight"].includes(lastPressedKey)
+    ? getKeyDisplayLabel(lastPressedKey)
+    : null;
 
   const isPressed = pressedKeys.size > 0;
 
@@ -487,7 +473,7 @@ const KeystrokePreview = () => {
       <AnimatePresence mode="popLayout">
         {displayKey && (
           <motion.div
-            key={animationKey}
+            key={lastPressedKey}
             layout
             initial={{ opacity: 0, scale: 0.5, y: 5 }}
             animate={{

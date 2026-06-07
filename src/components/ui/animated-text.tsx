@@ -25,7 +25,6 @@ const AnimatedText = React.forwardRef<HTMLDivElement, AnimatedTextProps>(
     className,
     textClassName,
     underlineClassName,
-    as: Component = "h1",
     underlineGradient = "from-blue-500 via-purple-500 to-pink-500",
     underlineHeight = "h-1",
     underlineOffset = "-bottom-2",

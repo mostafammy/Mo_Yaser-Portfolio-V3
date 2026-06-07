@@ -117,6 +117,7 @@ function MorphingPopoverTrigger({
   ...props
 }: MorphingPopoverTriggerProps) {
   const context = useContext(MorphingPopoverContext)
+  const motionCompRef = useRef<ReturnType<typeof motion.create> | null>(null)
   if (!context) {
     throw new Error(
       "MorphingPopoverTrigger must be used within MorphingPopover"
@@ -124,9 +125,13 @@ function MorphingPopoverTrigger({
   }
 
   if (asChild && isValidElement(children)) {
-    const MotionComponent = motion.create(
-      children.type as React.ForwardRefExoticComponent<any>
-    )
+    // eslint-disable-next-line react-hooks/refs
+    if (!motionCompRef.current) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      motionCompRef.current = motion.create(children.type as any)
+    }
+    // eslint-disable-next-line react-hooks/refs, @typescript-eslint/no-explicit-any
+    const MotionComponent = motionCompRef.current as React.ComponentType<any>
     const childProps = children.props as Record<string, unknown>
 
     return (
@@ -190,7 +195,7 @@ function MorphingPopoverContent({
 
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [context.isOpen, context.close])
+  }, [context.isOpen, context.close, context])
 
   return (
     <AnimatePresence>

@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
-import React from "react";
+import React, { useMemo } from "react";
 
 export const Meteors = ({
   number,
@@ -11,6 +11,16 @@ export const Meteors = ({
   className?: string;
 }) => {
   const meteors = new Array(number || 20).fill(true);
+  const randomDelays = useMemo(
+    // eslint-disable-next-line react-hooks/purity
+    () => Array.from({ length: number || 20 }, () => Math.random() * 5),
+    [number]
+  );
+  const randomDurations = useMemo(
+    // eslint-disable-next-line react-hooks/purity
+    () => Array.from({ length: number || 20 }, () => Math.floor(Math.random() * (10 - 5) + 5)),
+    [number]
+  );
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -32,8 +42,8 @@ export const Meteors = ({
             style={{
               top: "-40px",
               left: position + "px",
-              animationDelay: Math.random() * 5 + "s",
-              animationDuration: Math.floor(Math.random() * (10 - 5) + 5) + "s",
+              animationDelay: randomDelays[idx] + "s",
+              animationDuration: randomDurations[idx] + "s",
             }}
           ></span>
         );

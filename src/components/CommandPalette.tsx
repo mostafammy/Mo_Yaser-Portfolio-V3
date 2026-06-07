@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState, useRef, useCallback } from "react"
+import { useEffect, useState, useRef, useCallback, useMemo } from "react"
 import { motion, AnimatePresence } from "motion/react"
+import { useLenis } from "@/components/lenis-provider"
 
 // ─── Icons ───────────────────────────────────────────────────────────────────
 
@@ -68,6 +69,13 @@ const Icon = {
       <path d="M20 6 9 17l-5-5" />
     </svg>
   ),
+  ai: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+      <path d="M12 2a10 10 0 1 0 10 10" />
+      <path d="M12 8v4l2 2" />
+      <circle cx="18" cy="6" r="3" />
+    </svg>
+  ),
   search: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
       <circle cx="11" cy="11" r="8" />
@@ -88,21 +96,29 @@ interface Command {
   keywords?: string[]
 }
 
-function scrollTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
+interface CommandData {
+  id: string
+  label: string
+  description?: string
+  icon: React.ReactNode
+  group: "Navigate" | "Connect" | "Actions"
+  keywords?: string[]
+  target?: string
+  action?: () => void
 }
 
-const COMMANDS: Command[] = [
-  { id: "nav-hero",    label: "Go to Home",           group: "Navigate", icon: Icon.home,    action: () => scrollTo("hero") },
-  { id: "nav-about",   label: "Go to About",           group: "Navigate", icon: Icon.user,    action: () => scrollTo("about") },
-  { id: "nav-story",   label: "Go to Journey",         group: "Navigate", icon: Icon.book,    action: () => scrollTo("story"),           keywords: ["experience", "timeline", "career"] },
-  { id: "nav-global",  label: "Go to Global Presence", group: "Navigate", icon: Icon.globe,   action: () => scrollTo("global-presence"), keywords: ["map", "world", "globe", "countries"] },
-  { id: "nav-work",    label: "Go to Case Studies",    group: "Navigate", icon: Icon.folder,  action: () => scrollTo("case-studies"),    keywords: ["work", "projects", "portfolio"] },
-  { id: "nav-contact", label: "Go to Contact",         group: "Navigate", icon: Icon.mail,    action: () => scrollTo("contact"),         keywords: ["hire", "reach out"] },
+const COMMAND_DATA: CommandData[] = [
+  { id: "nav-hero",    label: "Go to Home",           group: "Navigate", icon: Icon.home,    target: "hero" },
+  { id: "nav-about",   label: "Go to About",           group: "Navigate", icon: Icon.user,    target: "about" },
+  { id: "nav-story",   label: "Go to Journey",         group: "Navigate", icon: Icon.book,    target: "story",         keywords: ["experience", "timeline", "career"] },
+  { id: "nav-global",  label: "Go to Global Presence", group: "Navigate", icon: Icon.globe,   target: "global-presence", keywords: ["map", "world", "globe", "countries"] },
+  { id: "nav-work",    label: "Go to Case Studies",    group: "Navigate", icon: Icon.folder,  target: "case-studies",  keywords: ["work", "projects", "portfolio"] },
+  { id: "nav-contact", label: "Go to Contact",         group: "Navigate", icon: Icon.mail,    target: "contact",       keywords: ["hire", "reach out"] },
   { id: "link-github",   label: "Open GitHub",    description: "github.com/mostafammy",           group: "Connect", icon: Icon.github,   action: () => window.open("https://github.com/mostafammy", "_blank") },
   { id: "link-linkedin", label: "Open LinkedIn",  description: "linkedin.com/in/mostafayaser",     group: "Connect", icon: Icon.linkedin, action: () => window.open("https://www.linkedin.com/in/mostafayaser/", "_blank") },
   { id: "link-email",    label: "Send Email",     description: "mostafa.yaser.developer@gmail.com", group: "Connect", icon: Icon.mail,     action: () => { window.location.href = "mailto:mostafa.yaser.developer@gmail.com" } },
   { id: "action-resume",     label: "View Resume",          group: "Actions", icon: Icon.user,   action: () => window.open("/resume", "_blank"),                                                     keywords: ["cv", "experience", "download"] },
+  { id: "action-ask",        label: "Ask AI about Mostafa", group: "Actions", icon: Icon.ai,    action: () => window.open("/ask", "_blank"),                                                          keywords: ["chat", "ai", "question", "claude", "bot"] },
   { id: "action-copy-email", label: "Copy Email Address",   group: "Actions", icon: Icon.copy,  action: () => navigator.clipboard.writeText("mostafa.yaser.developer@gmail.com"),                    keywords: ["clipboard"] },
   { id: "action-source",     label: "View Source on GitHub",group: "Actions", icon: Icon.code,  action: () => window.open("https://github.com/mostafammy/Mo_Yaser-Portfolio-V3", "_blank"),          keywords: ["repo", "code", "open source"] },
 ]
@@ -118,6 +134,7 @@ export function CommandPalette() {
   const [copied, setCopied] = useState(false)
   const [isMac, setIsMac] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const lenis = useLenis()
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -126,8 +143,23 @@ export function CommandPalette() {
     return () => clearTimeout(id)
   }, [])
 
+  const commands = useMemo(() =>
+    COMMAND_DATA.map((cmd) => ({
+      ...cmd,
+      action: cmd.action ?? (() => {
+        if (cmd.target) {
+          if (lenis) {
+            lenis.scrollTo(`#${cmd.target}`)
+          } else {
+            document.getElementById(cmd.target)?.scrollIntoView({ behavior: "smooth" })
+          }
+        }
+      }),
+    })),
+  [lenis])
+
   const filtered = query.trim()
-    ? COMMANDS.filter((cmd) => {
+    ? commands.filter((cmd) => {
         const q = query.toLowerCase()
         return (
           cmd.label.toLowerCase().includes(q) ||
@@ -136,12 +168,12 @@ export function CommandPalette() {
           cmd.keywords?.some((k) => k.includes(q))
         )
       })
-    : COMMANDS
+    : commands
 
   // Flat list used for keyboard index tracking
   const flat = query.trim()
     ? filtered
-    : GROUPS.flatMap((g) => COMMANDS.filter((c) => c.group === g))
+    : GROUPS.flatMap((g) => commands.filter((c) => c.group === g))
 
   const execute = useCallback((cmd: Command) => {
     if (cmd.id === "action-copy-email") {
@@ -198,9 +230,9 @@ export function CommandPalette() {
 
   const renderGrouped = () =>
     GROUPS.map((group) => {
-      const cmds = COMMANDS.filter((c) => c.group === group)
+      const cmds = commands.filter((c) => c.group === group)
       const offset = GROUPS.slice(0, GROUPS.indexOf(group)).reduce(
-        (acc, g) => acc + COMMANDS.filter((c) => c.group === g).length,
+        (acc, g) => acc + commands.filter((c) => c.group === g).length,
         0
       )
       return (

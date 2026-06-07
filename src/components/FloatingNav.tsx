@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react"
 import { motion, useScroll, useSpring, useMotionValue, AnimatePresence } from "motion/react"
 import { FloatingDock } from "@/components/ui/floating-dock"
+import { useLenis } from "@/components/lenis-provider"
+import { AmbientSoundToggle } from "@/components/AmbientSoundToggle"
 
 const HomeIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
@@ -102,16 +104,22 @@ export function FloatingNav() {
     return unsub
   }, [mobileOpen, scrollY])
 
+  const lenis = useLenis()
+
   function handleMobileNav(href: string) {
     setMobileOpen(false)
     setTimeout(() => {
-      document.getElementById(href.replace("#", ""))?.scrollIntoView({ behavior: "smooth", block: "start" })
+      if (lenis) {
+        lenis.scrollTo(href)
+      } else {
+        document.getElementById(href.replace("#", ""))?.scrollIntoView({ behavior: "smooth", block: "start" })
+      }
     }, 200)
   }
 
   return (
     <>
-      {/* ── Desktop FloatingDock ─────────────────────────────── */}
+      {/* ── Desktop FloatingDock + Ambient Toggle ────────────── */}
       <motion.div
         animate={{
           opacity: visible ? 1 : 0,
@@ -119,7 +127,7 @@ export function FloatingNav() {
           pointerEvents: visible ? "auto" : "none",
         }}
         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed bottom-7 left-1/2 -translate-x-1/2 z-50 hidden md:block"
+        className="fixed bottom-7 left-1/2 -translate-x-1/2 z-50 hidden md:flex items-center gap-2"
       >
         <FloatingDock
           items={NAV_ITEMS}
@@ -128,6 +136,10 @@ export function FloatingNav() {
           desktopClassName="bg-black/75 backdrop-blur-2xl border border-white/10 shadow-2xl"
           mobileClassName="bg-black/75 backdrop-blur-2xl border border-white/10 shadow-2xl"
         />
+        {/* Ambient sound toggle sits right of the dock */}
+        <div className="bg-black/75 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl p-1.5 flex items-center">
+          <AmbientSoundToggle />
+        </div>
       </motion.div>
 
       {/* ── Mobile hamburger button ──────────────────────────── */}
@@ -235,6 +247,12 @@ export function FloatingNav() {
                     </button>
                   )
                 })}
+              </div>
+
+              {/* ── Ambient sound row ─────────────────────────────── */}
+              <div className="mt-3 pt-3 border-t border-white/[0.05] flex items-center justify-between px-4">
+                <span className="text-[13px] text-white/35 font-medium">Ambient Sound</span>
+                <AmbientSoundToggle />
               </div>
             </motion.div>
           </>

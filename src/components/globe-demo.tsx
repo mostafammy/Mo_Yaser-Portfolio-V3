@@ -31,6 +31,7 @@ export default function GlobeDemo() {
     autoRotateSpeed: 0.5,
   };
   const colors = ["#06b6d4", "#3b82f6", "#6366f1"];
+  /* eslint-disable react-hooks/purity */
   const sampleArcs = [
     {
       order: 1,
@@ -393,6 +394,7 @@ export default function GlobeDemo() {
       color: colors[Math.floor(Math.random() * (colors.length - 1))],
     },
   ];
+  /* eslint-enable react-hooks/purity */
 
   return (
     <div className="flex flex-row items-center justify-center py-20 h-screen md:h-auto dark:bg-black bg-white relative w-full">

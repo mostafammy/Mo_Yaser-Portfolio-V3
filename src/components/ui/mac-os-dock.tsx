@@ -22,9 +22,7 @@ export function MacOSDock({
   className = "",
 }: MacOSDockProps) {
   const [mouseX, setMouseX] = useState<number | null>(null);
-  const [currentScales, setCurrentScales] = useState<number[]>(
-    apps.map(() => 1)
-  );
+  const [currentScales, setCurrentScales] = useState<number[]>(() => apps.map(() => 1));
   const [currentPositions, setCurrentPositions] = useState<number[]>([]);
   const dockRef = useRef<HTMLDivElement>(null);
   const iconRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -123,9 +121,12 @@ export function MacOSDock({
   useEffect(() => {
     const initialScales = apps.map(() => minScale);
     const initialPositions = calculatePositions(initialScales);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentScales(initialScales);
     setCurrentPositions(initialPositions);
   }, [apps, calculatePositions, minScale, config]);
+
+  const animateToTargetRef = useRef<() => void>(undefined);
 
   const animateToTarget = useCallback(() => {
     const targetScales = calculateTargetMagnification(mouseX);
@@ -154,7 +155,7 @@ export function MacOSDock({
     );
 
     if (scalesNeedUpdate || positionsNeedUpdate || mouseX !== null) {
-      animationFrameRef.current = requestAnimationFrame(animateToTarget);
+      animationFrameRef.current = requestAnimationFrame(animateToTargetRef.current!);
     }
   }, [
     mouseX,
@@ -163,6 +164,9 @@ export function MacOSDock({
     currentScales,
     currentPositions,
   ]);
+
+  // eslint-disable-next-line react-hooks/refs
+  animateToTargetRef.current = animateToTarget;
 
   useEffect(() => {
     if (animationFrameRef.current) {
@@ -212,7 +216,8 @@ export function MacOSDock({
 
   const handleAppClick = (appId: string, index: number) => {
     if (iconRefs.current[index]) {
-      if (typeof window !== "undefined" && (window as any).gsap) {
+      if (typeof window !== "undefined" && (window as unknown as Record<string, unknown>).gsap) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const gsap = (window as any).gsap;
         const bounceHeight =
           currentScales[index] > 1.3

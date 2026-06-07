@@ -3,19 +3,23 @@
 import { useEffect, useState } from "react"
 import { motion, useSpring } from "motion/react"
 
-const SECTION_ACCENTS: Record<string, string> = {
-  "hero":            "59,130,246",
-  "about":           "59,130,246",
-  "story":           "129,140,248",
-  "global-presence": "16,185,129",
-  "hackathons":      "245,158,11",
-  "case-studies":    "6,182,212",
-  "contact":         "59,130,246",
+import { useCursorTheme, type CursorTheme } from "@/context/CursorContext"
+
+const SECTION_ACCENTS: Record<string, { accent: string, theme: CursorTheme }> = {
+  "hero":            { accent: "59,130,246", theme: "hero" },
+  "about":           { accent: "59,130,246", theme: "about" },
+  "story":           { accent: "129,140,248", theme: "story" },
+  "contributions":   { accent: "34,211,238", theme: "github" },
+  "global-presence": { accent: "16,185,129", theme: "global-presence" },
+  "hackathons":      { accent: "245,158,11", theme: "hackathons" },
+  "case-studies":    { accent: "6,182,212", theme: "case-studies" },
+  "contact":         { accent: "59,130,246", theme: "contact" },
 }
 
 export function SectionCursorGlow() {
   const [accent, setAccent] = useState("59,130,246")
   const [visible, setVisible] = useState(false)
+  const { setActiveTheme } = useCursorTheme()
 
   const cursorX = useSpring(0, { damping: 30, stiffness: 180, mass: 0.6 })
   const cursorY = useSpring(0, { damping: 30, stiffness: 180, mass: 0.6 })
@@ -39,7 +43,15 @@ export function SectionCursorGlow() {
       const el = document.getElementById(id)
       if (!el) return
       const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setAccent(SECTION_ACCENTS[id]) },
+        ([entry]) => { 
+          if (entry.isIntersecting) {
+            const config = SECTION_ACCENTS[id]
+            if (config) {
+              setAccent(config.accent)
+              setActiveTheme(config.theme)
+            }
+          } 
+        },
         { threshold: 0.25 }
       )
       obs.observe(el)
@@ -47,7 +59,7 @@ export function SectionCursorGlow() {
     })
 
     return () => observers.forEach((obs) => obs.disconnect())
-  }, [])
+  }, [setActiveTheme])
 
   return (
     <motion.div

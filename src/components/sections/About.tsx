@@ -115,9 +115,9 @@ export function About() {
       className="relative bg-[#0a0a0a] py-28 lg:py-44 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr,1.35fr] gap-16 lg:gap-28 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.35fr] gap-16 lg:gap-28 items-start">
           {/* Left — sticky panel */}
-          <div className="lg:sticky lg:top-32 lg:self-start space-y-10 z-20 bg-[#0a0a0a]/80 backdrop-blur-sm lg:bg-transparent lg:backdrop-blur-none py-4 lg:py-0">
+          <div className="lg:sticky lg:top-32 lg:self-start space-y-10 z-20 bg-[#0a0a0a]/80 backdrop-blur-sm lg:bg-transparent lg:backdrop-blur-none pt-4 pb-12 lg:py-0">
             <div>
               <motion.div
                 variants={fadeUp}
@@ -191,7 +191,7 @@ export function About() {
           </div>
 
           {/* Right — scrolling cards */}
-          <div className="space-y-4 lg:space-y-6 z-10 pt-4 lg:pt-0">
+          <div className="space-y-4 lg:space-y-6 z-10 mt-12 lg:mt-0 pt-4 lg:pt-0">
             {CARDS.map((card, i) => (
               <motion.div
                 key={card.title}

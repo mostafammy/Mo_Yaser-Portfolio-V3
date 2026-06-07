@@ -60,6 +60,7 @@ export const PillBase: React.FC = () => {
 
   useEffect(() => {
     if (hovering) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setExpanded(true);
       pillWidth.set(580);
       if (hoverTimeoutRef.current) {

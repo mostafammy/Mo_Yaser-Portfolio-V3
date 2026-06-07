@@ -52,7 +52,7 @@ import { cn } from "@/lib/utils";
 export function Button({
   borderRadius = "1.75rem",
   children,
-  as: Component = "button",
+  as: _as = "button",
   containerClassName,
   borderClassName,
   duration,
@@ -61,13 +61,19 @@ export function Button({
 }: {
   borderRadius?: string;
   children: React.ReactNode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   as?: any;
   containerClassName?: string;
   borderClassName?: string;
   duration?: number;
   className?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }) {
+  const Component = _as as React.ElementType<{
+    children?: React.ReactNode;
+    [key: string]: unknown;
+  }>;
   return (
     <Component
       className={cn(
@@ -119,8 +125,10 @@ export const MovingBorder = ({
   duration?: number;
   rx?: string;
   ry?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pathRef = useRef<any>(null);
   const progress = useMotionValue<number>(0);
 

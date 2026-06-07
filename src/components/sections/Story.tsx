@@ -13,6 +13,7 @@ import {
   IconCompass,
 } from "@tabler/icons-react"
 import { fadeUp } from "@/lib/motion"
+import { useCursorTheme } from "@/context/CursorContext"
 
 /* ─── Data ──────────────────────────────────────────────────── */
 
@@ -127,7 +128,9 @@ function ChapterBlock({
   nextAccent: string
 }) {
   const blockRef = useRef<HTMLDivElement>(null)
+  const iconRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(blockRef, { once: true, margin: "-80px" })
+  const { setHoverTarget } = useCursorTheme()
 
   return (
     <div ref={blockRef} className="relative">
@@ -135,6 +138,16 @@ function ChapterBlock({
       <div className="absolute left-0 top-0 bottom-0 flex flex-col items-center w-14">
         {/* Icon orb */}
         <motion.div
+          ref={iconRef}
+          onMouseEnter={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect()
+            setHoverTarget({
+              x: rect.left + rect.width / 2,
+              y: rect.top + rect.height / 2,
+              radius: 50,
+            })
+          }}
+          onMouseLeave={() => setHoverTarget(null)}
           initial={{ scale: 0.3, opacity: 0 }}
           animate={
             isInView
@@ -150,7 +163,7 @@ function ChapterBlock({
               : {}
           }
           transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
-          className="relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+          className="relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 cursor-pointer"
           style={{
             background: `linear-gradient(135deg, ${chapter.accent}1a 0%, ${chapter.accent}08 100%)`,
             border: `1px solid ${chapter.accent}30`,

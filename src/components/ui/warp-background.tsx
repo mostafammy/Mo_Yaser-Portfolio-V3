@@ -27,8 +27,10 @@ const Beam = ({
   delay: number
   duration: number
 }) => {
-  const hue = Math.floor(Math.random() * 360)
-  const ar = Math.floor(Math.random() * 10) + 1
+  // eslint-disable-next-line react-hooks/purity
+  const hue = useMemo(() => Math.floor(Math.random() * 360), [])
+  // eslint-disable-next-line react-hooks/purity
+  const ar = useMemo(() => Math.floor(Math.random() * 10) + 1, [])
 
   return (
     <motion.div

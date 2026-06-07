@@ -1,19 +1,24 @@
 {
   "name": "mostafayaser.earth",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "release": "bash scripts/release.sh"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.81",
+    "@ai-sdk/react": "^3.0.199",
+    "@anthropic-ai/sdk": "^0.101.0",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@tabler/icons-react": "^3.44.0",
+    "ai": "^6.0.197",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "dotted-map": "^3.1.0",

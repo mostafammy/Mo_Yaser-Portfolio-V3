@@ -290,7 +290,7 @@ export function Preloader() {
             </div>
           </motion.div>
 
-          <CursorEffects hoverType={hoverType} progress={progress} chargeLevel={chargeLevel} chargeLevelRef={chargeLevelRef} updateCharge={updateCharge} />
+          <CursorEffects hoverType={hoverType} progress={progress} chargeLevelRef={chargeLevelRef} updateCharge={updateCharge} />
         </motion.div>
       )}
     </AnimatePresence>
