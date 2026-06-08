@@ -76,6 +76,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   /* --- Hydrate from storage / system on mount --- */
   useEffect(() => {
     applyThemeClass(resolvedTheme);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* --- Listen for system preference changes when no explicit theme is set --- */
