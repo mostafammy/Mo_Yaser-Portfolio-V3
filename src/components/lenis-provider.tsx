@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect, useState, createContext, useContext, type ReactNode } from "react"
+import { useRef, useEffect, useCallback, useSyncExternalStore, createContext, useContext, type ReactNode } from "react"
 import Lenis from "lenis"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
@@ -18,7 +18,10 @@ export function useLenis() {
 }
 
 export function LenisProvider({ children }: LenisProviderProps) {
-  const [lenis, setLenis] = useState<Lenis | null>(null)
+  const storeRef = useRef<{ lenis: Lenis | null; listeners: Set<() => void> }>({
+    lenis: null,
+    listeners: new Set(),
+  })
 
   useEffect(() => {
     const instance = new Lenis({
@@ -30,7 +33,8 @@ export function LenisProvider({ children }: LenisProviderProps) {
       autoRaf: false,
     })
 
-    setLenis(instance)
+    storeRef.current = { ...storeRef.current, lenis: instance }
+    storeRef.current.listeners.forEach((fn) => fn())
 
     instance.on("scroll", ScrollTrigger.update)
 
@@ -45,6 +49,15 @@ export function LenisProvider({ children }: LenisProviderProps) {
       gsap.ticker.lagSmoothing(1)
     }
   }, [])
+
+  const lenis = useSyncExternalStore(
+    useCallback((onStoreChange) => {
+      storeRef.current.listeners.add(onStoreChange)
+      return () => storeRef.current.listeners.delete(onStoreChange)
+    }, []),
+    () => storeRef.current.lenis,
+    () => null,
+  )
 
   return (
     <LenisContext.Provider value={lenis}>
