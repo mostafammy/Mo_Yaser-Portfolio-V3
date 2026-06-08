@@ -1,4 +1,5 @@
-import Anthropic from "@anthropic-ai/sdk"
+import { anthropic } from "@ai-sdk/anthropic"
+import { streamText } from "ai"
 
 export const runtime = "edge"
 
@@ -50,31 +51,12 @@ export async function POST(req: Request) {
 
   const { messages }: { messages: Message[] } = await req.json()
 
-  const client = new Anthropic({ apiKey })
-
-  const stream = await client.messages.stream({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 256,
+  const result = streamText({
+    model: anthropic("claude-haiku-4-5-20251001"),
+    maxOutputTokens: 256,
     system: SYSTEM_PROMPT,
     messages: messages.map((m) => ({ role: m.role, content: m.content })),
   })
 
-  const encoder = new TextEncoder()
-  const readable = new ReadableStream({
-    async start(controller) {
-      for await (const event of stream) {
-        if (
-          event.type === "content_block_delta" &&
-          event.delta.type === "text_delta"
-        ) {
-          controller.enqueue(encoder.encode(event.delta.text))
-        }
-      }
-      controller.close()
-    },
-  })
-
-  return new Response(readable, {
-    headers: { "Content-Type": "text/plain; charset=utf-8" },
-  })
+  return result.toTextStreamResponse()
 }
