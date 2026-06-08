@@ -7,7 +7,7 @@ import {
   FileText,
   Folder,
   Globe,
-  Image,
+  Image as ImageIcon,
   Mail,
   Music,
   Terminal,
@@ -33,7 +33,7 @@ const sampleApps = [
     icon: <FileText className="size-full" />,
   },
   { id: "safari", name: "Safari", icon: <Globe className="size-full" /> },
-  { id: "photos", name: "Photos", icon: <Image className="size-full" /> },
+  { id: "photos", name: "Photos", icon: <ImageIcon className="size-full" /> },
   { id: "music", name: "Music", icon: <Music className="size-full" /> },
   {
     id: "calendar",
