@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 import React from "react";
 import { BackgroundGradient } from "@/components/ui/background-gradient";
 
