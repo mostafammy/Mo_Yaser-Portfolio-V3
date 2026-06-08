@@ -189,7 +189,7 @@ export function CursorEffects({ hoverType, progress, chargeLevelRef, updateCharg
       window.removeEventListener("mousedown", handleMouseDown);
       window.removeEventListener("mouseup", handleMouseDownUpWrapper);
     };
-  }, [cursorX, cursorY, hoverType, updateCharge]);
+  }, [cursorX, cursorY, hoverType, updateCharge, chargeLevelRef]);
 
   // Click & Hold Sparkler Emitter (Welding spark generator & Continuous charging)
   useEffect(() => {
@@ -258,7 +258,7 @@ export function CursorEffects({ hoverType, progress, chargeLevelRef, updateCharg
     }, 30);
 
     return () => clearInterval(interval);
-  }, [isClicked, cursorX, cursorY, hoverType, updateCharge]);
+  }, [isClicked, cursorX, cursorY, hoverType, updateCharge, chargeLevelRef]);
 
   // Idle tracking stardust generator
   useEffect(() => {
