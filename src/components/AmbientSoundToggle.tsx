@@ -90,18 +90,15 @@ function MutedIcon() {
 export function AmbientSoundToggle() {
   const { enabled, toggle } = useAmbientAudioContext()
   const [hovered, setHovered] = useState(false)
-  const [pressed, setPressed] = useState(false)
 
   // Scale spring for press feedback
   const scaleSpring = useSpring(1, { stiffness: 500, damping: 28 })
   const scale = useTransform(scaleSpring, (v) => v)
 
   function handlePress() {
-    setPressed(true)
     scaleSpring.set(0.88)
     setTimeout(() => {
       scaleSpring.set(1)
-      setPressed(false)
     }, 120)
     toggle()
   }
