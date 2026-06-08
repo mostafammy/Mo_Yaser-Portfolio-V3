@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React from "react";
 import { FloatingDock } from "@/components/ui/floating-dock";
 import {
