@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { CometCard } from "@/components/ui/comet-card";
 
 export default function CometCardDemo() {
