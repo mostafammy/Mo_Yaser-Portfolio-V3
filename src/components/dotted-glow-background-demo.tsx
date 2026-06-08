@@ -26,6 +26,7 @@
  *   `--color-sky-800`, etc.) so they respect the active theme.
  */
 
+/* eslint-disable @next/next/no-img-element */
 import React from "react";
 import { DottedGlowBackground } from "@/components/ui/dotted-glow-background";
 
